@@ -1,0 +1,5 @@
+{
+  "symptom": "task_id raw into HTTP header",
+  "call_chain": "task_content -> headers['Content-Disposition'] = f'...filename=\"{task_id}.mp4\"'",
+  "evidence_loc": "app/main.py:466"
+}

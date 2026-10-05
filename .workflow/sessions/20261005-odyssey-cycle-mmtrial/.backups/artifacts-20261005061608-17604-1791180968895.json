@@ -1,6 +1,6 @@
 {
   "schema_version": "artifacts/1.0",
-  "revision": 10,
+  "revision": 9,
   "artifacts": {
     "ART-ccaca2789390bf5393b8": {
       "kind": "evidence",
@@ -443,45 +443,6 @@
       "status": "sealed",
       "derived_from": [],
       "replaces": "ART-5a3103e01089fe4af6e5"
-    },
-    "ART-65d82b71a3096db575e1": {
-      "kind": "evidence",
-      "role": "evidence",
-      "producer_run_id": "run-1e7237043c75",
-      "relative_path": "runs/run-1e7237043c75/outputs/evidence.ndjson",
-      "media_type": "application/x-ndjson",
-      "schema_version": "evidence/1.0",
-      "content_hash": "41a654210ccac15857fe62b6037f2a4ab85f45c728ebeeaf855f04605f1d284b",
-      "size": 1120,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": null
-    },
-    "ART-55ba4ad1c38d9e73a3ec": {
-      "kind": "security-audit-result",
-      "role": "primary",
-      "producer_run_id": "run-1e7237043c75",
-      "relative_path": "runs/run-1e7237043c75/outputs/session.json",
-      "media_type": "application/json",
-      "schema_version": "security-audit-result/1.0",
-      "content_hash": "8a5ed4a36e161c11cf88813cee5b63b694773436b1a9748cb802b5ec2d5b050c",
-      "size": 3607,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": null
-    },
-    "ART-e4261a1e1fb26ba9bfc8": {
-      "kind": "security-report",
-      "role": "primary",
-      "producer_run_id": "run-1e7237043c75",
-      "relative_path": "runs/run-1e7237043c75/outputs/understanding.md",
-      "media_type": "text/markdown",
-      "schema_version": "security-report/1.0",
-      "content_hash": "c08517bd0697bdec919cbb99718b023737f19a69d631071dce11914c861b7a63",
-      "size": 610,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": null
     }
   },
   "aliases": {
@@ -498,9 +459,6 @@
     "defensive-anchors": "ART-d0d6554b24f62a1629fa",
     "defensive-evidence": "ART-d3e739e0d15696972281",
     "defensive-session": "ART-0773eacca2f70ecf806e",
-    "defensive-understanding": "ART-f7f4c0e4223f954efdf0",
-    "security-evidence": "ART-65d82b71a3096db575e1",
-    "security-session": "ART-55ba4ad1c38d9e73a3ec",
-    "security-understanding": "ART-e4261a1e1fb26ba9bfc8"
+    "defensive-understanding": "ART-f7f4c0e4223f954efdf0"
   }
 }

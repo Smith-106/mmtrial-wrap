@@ -463,7 +463,8 @@ async def task_content(task_id: str, stream: bool = False,
             stop.set()
             pump.cancel()
 
-    headers = {"Content-Disposition": f'inline; filename="{task_id}.mp4"'}
+    safe_tid = re.sub(r"[^A-Za-z0-9_-]", "_", task_id)[:80]
+    headers = {"Content-Disposition": f'inline; filename="{safe_tid}.mp4"'}
     cl = r.headers.get("content-length")
     if cl:
         headers["Content-Length"] = cl

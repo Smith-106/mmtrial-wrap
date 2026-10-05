@@ -4,8 +4,8 @@
   "objective": "odyssey cycle improve→review→debug→improve→review→debug→defensive→debug→review→security→debug→review→ui→review on mmtrial-wrap",
   "definition_of_done": "all 14 odyssey steps complete with evidence",
   "status": "open",
-  "orchestration_revision": 25,
-  "activity_revision": 25,
+  "orchestration_revision": 35,
+  "activity_revision": 35,
   "chain": [
     {
       "step_id": "step-1-odyssey-improve",
@@ -88,8 +88,10 @@
       "args": [
         "mmtrial-wrap (debug pass 6)"
       ],
-      "status": "pending",
-      "run_ids": [],
+      "status": "completed",
+      "run_ids": [
+        "run-865e47e0cc61"
+      ],
       "goal_ref": null,
       "decision_ref": null,
       "decision_refs": [],
@@ -101,8 +103,10 @@
       "args": [
         "mmtrial-wrap (defensive pass 7)"
       ],
-      "status": "pending",
-      "run_ids": [],
+      "status": "completed",
+      "run_ids": [
+        "run-c1f1b2292289"
+      ],
       "goal_ref": null,
       "decision_ref": null,
       "decision_refs": [],
@@ -114,8 +118,10 @@
       "args": [
         "mmtrial-wrap (debug pass 8)"
       ],
-      "status": "pending",
-      "run_ids": [],
+      "status": "completed",
+      "run_ids": [
+        "run-036c4cbaff52"
+      ],
       "goal_ref": null,
       "decision_ref": null,
       "decision_refs": [],
@@ -127,8 +133,10 @@
       "args": [
         "mmtrial-wrap (review pass 9)"
       ],
-      "status": "pending",
-      "run_ids": [],
+      "status": "completed",
+      "run_ids": [
+        "run-466da52b20ba"
+      ],
       "goal_ref": null,
       "decision_ref": null,
       "decision_refs": [],
@@ -140,8 +148,10 @@
       "args": [
         "mmtrial-wrap (security pass 10)"
       ],
-      "status": "pending",
-      "run_ids": [],
+      "status": "completed",
+      "run_ids": [
+        "run-1e7237043c75"
+      ],
       "goal_ref": null,
       "decision_ref": null,
       "decision_refs": [],
@@ -205,7 +215,7 @@
   "artifacts_ref": "artifacts.json",
   "evidence_ref": "evidence.json",
   "created_at": "2026-10-05T04:52:45.720Z",
-  "updated_at": "2026-10-05T06:10:32.576Z",
+  "updated_at": "2026-10-05T06:16:08.807Z",
   "completed_at": null,
   "archived_at": null
 }
