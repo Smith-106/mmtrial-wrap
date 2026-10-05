@@ -1,9 +1,8 @@
 """mmtrial-wrap — official-API-style wrapper around the SiftQ MiniMax trial flow.
 
-The upstream trial endpoint has a Cloudflare-gated POST that requires a live
-`cf_clearance` cookie plus a full multipart body (visitorId / channelCode /
-sourceHost / ratio / duration / client_id / image). This service hides all of
-that so downstream clients can use a clean, official-looking API:
+All upstream traffic goes through the attached browser profile's own
+fetch() (CDP in-page execution), so the browser's real fingerprint, cookies
+and IP handle Cloudflare. This service exposes a clean, official-looking API:
 
     POST /v1/generations          -> create generation task
     POST /v1/generations:await    -> create + block until terminal
@@ -12,7 +11,7 @@ that so downstream clients can use a clean, official-looking API:
     GET  /v1/usage                -> quota snapshot
     GET  /healthz
 """
-import asyncio, base64, concurrent.futures, hmac, logging, os, re, threading, time, uuid, json
+import asyncio, base64, hmac, logging, os, re, time, uuid, json
 from typing import Optional
 
 from fastapi import FastAPI, Request, UploadFile, File, Form, HTTPException
@@ -21,21 +20,14 @@ from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
 
 log = logging.getLogger("mmtrial-wrap")
 
-BASE = "https://siftq.com"
-UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-      "(KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36")
 TRIAL_PATH = "/api/minimax-trial"
-TRIAL_URL = BASE + TRIAL_PATH
+TRIAL_URL = "https://siftq.com" + TRIAL_PATH
 POLL_SECONDS = float(os.getenv("POLL_SECONDS", "7"))
 TASK_TTL_S = int(os.getenv("TASK_TTL_S", "86400"))
 DEFAULT_MAX_WAIT_S = int(os.getenv("DEFAULT_MAX_WAIT_S", "600"))
-COOKIE_FILE = os.getenv("CF_COOKIE_FILE", "/data/cf_clearance.txt")
-CF_CLEARANCE_ENV = os.getenv("CF_CLEARANCE", "").strip()
-COOKIE_REFRESH_URL = os.getenv("CF_REFRESH_URL", BASE + "/minimax-h3/free-trial")
+CDP_HOST = os.getenv("CDP_HOST", "localhost")
+CDP_PORT = os.getenv("CDP_PORT", "11611")
 PROMPT_DEFAULT = "夜色中的东京街头，一个女孩转身回眸，霓虹在雨中晕开，电影感，慢动作"
-GET_RETRY = int(os.getenv("UPSTREAM_GET_RETRIES", "2"))
-IPV4 = re.compile(r"^\d{1,3}(\.\d{1,3}){3}$")
-MM_XFF = os.getenv("MM_XFF", "").strip()
 API_KEY = os.getenv("API_KEY", "").strip()  # optional: require on write endpoints
 
 app = FastAPI(title="mmtrial-wrap", version="1.0.0")
@@ -56,124 +48,8 @@ def _check_api_key(request: Request) -> None:
 
 
 
-def _load_cookie() -> str:
-    """cf_clearance: env beats file. Empty string means absent."""
-    if CF_CLEARANCE_ENV:
-        return CF_CLEARANCE_ENV
-    try:
-        return open(COOKIE_FILE, "r", encoding="utf-8").read().strip()
-    except OSError:
-        return ""
-
-
-def _save_cookie(v: str) -> None:
-    try:
-        os.makedirs(os.path.dirname(COOKIE_FILE), exist_ok=True)
-        with open(COOKIE_FILE, "w", encoding="utf-8") as f:
-            f.write(v)
-    except OSError:
-        pass
-
-
-class CookieProvider:
-    """cf_clearance with lazy headless refresh. Refresh is opt-in (AUTO_CLEARANCE=1
-    + playwright + chromium inside the container); otherwise env/file only."""
-
-    def __init__(self) -> None:
-        self._value = _load_cookie()
-        self._lock = asyncio.Lock()
-        self.refreshing = False
-
-    def get(self) -> str:
-        return self._value
-
-    async def get_fresh(self) -> str:
-        """Single-lock-scope read: waits for in-flight refresh, never returns '' mid-refresh."""
-        async with self._lock:
-            if self.refreshing:
-                # wait briefly for in-flight refresh to land
-                for _ in range(40):
-                    await asyncio.sleep(0.5)
-                    if not self.refreshing or self._value:
-                        break
-            return self._value
-
-    def invalidate(self) -> None:
-        self._value = ""
-        # also drop the on-disk cache so a restarted process doesn't resurrect a stale cookie
-        try:
-            os.remove(COOKIE_FILE)
-        except OSError:
-            pass
-
-    async def ensure(self, force: bool = False) -> str:
-        if self._value and not force:
-            return self._value
-        async with self._lock:
-            if self._value and not force:
-                return self._value
-            if self.refreshing:
-                # wait briefly for in-flight refresh
-                for _ in range(40):
-                    await asyncio.sleep(0.5)
-                    if not self.refreshing or self._value:
-                        break
-                return self._value
-            self.refreshing = True
-        try:
-            v = await asyncio.to_thread(self._refresh_headless)
-            if v:
-                self._value = v
-                _save_cookie(v)
-        finally:
-            self.refreshing = False
-        return self._value
-
-    def _refresh_headless(self) -> str:
-        if os.getenv("AUTO_CLEARANCE", "0") != "1":
-            return ""
-        try:
-            from playwright.sync_api import sync_playwright
-        except Exception:
-            return ""
-        try:
-            with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True, args=[
-                    "--no-sandbox", "--disable-blink-features=AutomationControlled"])
-                ctx = browser.new_context(user_agent=UA)
-                pg = ctx.new_page()
-                pg.goto(COOKIE_REFRESH_URL, timeout=45000, wait_until="domcontentloaded")
-                pg.wait_for_timeout(4000)  # let CF challenge settle
-                for c in ctx.cookies(BASE):
-                    if c.get("name") == "cf_clearance":
-                        browser.close()
-                        return c.get("value", "")
-                browser.close()
-        except Exception:
-            pass
-        return ""
-
-
-COOKIES = CookieProvider()
-
-
-def _base_headers(client_id: str, idem: str, with_cookie: bool = True,
-                  cookie_override: Optional[str] = None) -> dict:
-    h = {
-        "Accept": "application/json",
-        "Origin": BASE,
-        "Referer": BASE + "/minimax-h3/free-trial",
-        "X-MiniMax-Trial-Client": client_id,
-        "Idempotency-Key": idem,
-    }
-    if with_cookie:
-        c = cookie_override if cookie_override is not None else COOKIES.get()
-        if c:
-            h["Cookie"] = "cf_clearance=" + c
-    # F4: only forward a well-formed IP/CSV list, never raw env text.
-    if MM_XFF and all(IPV4.match(p.strip()) for p in MM_XFF.split(",")):
-        h["X-Forwarded-For"] = MM_XFF
-    return h
+# NOTE: the old curl_cffi cookie layer (CookieProvider/_base_headers/MM_XFF)
+# was fully removed. All upstream traffic goes through CDP in-page fetch below.
 
 
 # ------------------------- CDP in-page fetch ----------------------------------
@@ -184,7 +60,7 @@ async def _get_cdp_page():
         from playwright.async_api import async_playwright
     except ImportError:
         raise HTTPException(503, "playwright not installed")
-    cdp_url = f"http://{os.getenv('CDP_HOST', 'localhost')}:{os.getenv('CDP_PORT', '11611')}"
+    cdp_url = f"http://{CDP_HOST}:{CDP_PORT}"
     pw = await async_playwright().start()
     browser = await pw.chromium.connect_over_cdp(cdp_url)
     # Find the siftq.com page in the attached browser context
@@ -243,7 +119,7 @@ async def _get_status_via_cdp(task_id: str, access_token: str) -> dict:
         await pw.stop()
 
 
-async def _submit(client_id: str, idem: str, image: bytes, image_name: str,
+async def _submit(client_id: str, image: bytes, image_name: str,
                   prompt: str, ratio: str, duration: str, visitor_id: str) -> dict:
     image_b64 = base64.b64encode(image).decode()
     r = await _post_via_cdp(client_id, image_b64, image_name, prompt, ratio, duration, visitor_id)
@@ -257,7 +133,7 @@ async def _submit(client_id: str, idem: str, image: bytes, image_name: str,
 
 @app.get("/healthz")
 def healthz():
-    return {"ok": True, "cookie": bool(COOKIES.get()), "tasks": len(TASKS)}
+    return {"ok": True, "cdp": f"{CDP_HOST}:{CDP_PORT}", "tasks": len(TASKS)}
 
 
 @app.get("/v1/usage")
@@ -357,13 +233,16 @@ async def _create_generation_impl(image: UploadFile, prompt: Optional[str],
     if not data:
         raise HTTPException(400, "empty image")
     cid = client_id or ("mmtrial_" + str(uuid.uuid4()))
-    idem = "mmtrial_" + str(uuid.uuid4())
     vid = "mmguest_" + str(uuid.uuid4())
     pr = prompt or PROMPT_DEFAULT
-    out = await _submit(cid, idem, data, image.filename or "image.jpg", pr, ratio, duration, vid)
+    out = await _submit(cid, data, image.filename or "image.jpg", pr, ratio, duration, vid)
     if out["http"] != 200:
         raise HTTPException(out["http"], out["data"])
     d = out["data"]
+    if not isinstance(d, dict) or "task_id" not in d or "access_token" not in d:
+        # Upstream returned no task payload — typically a CF re-challenge HTML
+        # page surfacing as {raw: ...} through the in-page fetch.
+        raise HTTPException(503, "upstream returned no task (browser tab may need a CF re-challenge; reload siftq.com)")
     tid = str(d["task_id"])
     async with _tasks_lock:
         TASKS[tid] = {"access_token": d["access_token"], "client_id": cid,
@@ -467,5 +346,5 @@ async def http_exc(_: Request, exc: HTTPException):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host=os.getenv("HOST", "0.0.0.0"),
+    uvicorn.run("app.main:app", host=os.getenv("HOST", "127.0.0.1"),
                 port=int(os.getenv("PORT", "8080")), log_level="info")

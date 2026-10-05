@@ -1,22 +1,38 @@
-# Verification matrix — run against the live container
+# Verification matrix — CDP-attach variant
+
+Prerequisites: RoxyBrowser running, `siftq.com/minimax-h3/free-trial` tab open
+with a valid `cf_clearance`, CDP port discoverable via `DevToolsActivePort`
+(default `11611`). No cookie env vars needed — the browser profile owns auth.
 
 | Step | Command | Expected |
 |---|---|---|
-| Build (thin) | `docker build --target thin -t mmtrial-wrap:latest .` | image `mmtrial-wrap:latest` |
-| Build (full) | `docker build --target full -t mmtrial-wrap:full .` | Playwright/Chromium image |
-| Start (thin) | `CF_CLEARANCE='…' docker compose up -d` | container healthy |
-| Health | `curl http://localhost:8080/healthz` | `{"ok":true,"cookie":true}` |
+| Build | `docker build -t mmtrial-wrap:latest .` | image `mmtrial-wrap:latest` |
+| Start | `CDP_PORT=11611 docker compose up -d` | container healthy |
+| Health | `curl http://localhost:8080/healthz` | `{"ok":true,"cdp":"…","tasks":…}` |
 | Quota | `curl http://localhost:8080/v1/usage` | `{"used":…,"remaining":…}` |
 | Seed task | `curl -X POST /v1/tasks -d '{"task_id":"…","access_token":"…","client_id":"…"}'` | `{"ok":true}` |
-| Poll status | `curl /v1/tasks/{id}` | `{task_id,status,active_count,…}` |
+| Poll status | `curl /v1/tasks/{id}` | `{…,"status":"succeeded",…}` |
 | Content (redirect) | `curl -I /v1/tasks/{id}/content` | `307` to upstream URL |
 | Content (stream) | `curl /v1/tasks/{id}/content?stream=1 -o out.mp4` | 200, `video/mp4` |
 | One-shot create | `curl -X POST /v1/generations:await -F image=@x.jpg -F prompt=…` | `{task_id,final.status:"succeeded",content_url}` |
+| Bad JSON | `curl -X POST /v1/tasks -d 'not json'` | `400 {"error":…}` |
+| No-task payload | upstream returns non-task body (e.g. CF HTML) | `503` with re-challenge hint |
 
-# Evidence (2026-10-05)
-- Thin build → container `mmtrial-wrap` healthy, all routes exercised inside Docker.
-- `POST /v1/generations:await` → `{"task_id":"2106967203628830720","status":"queued","final":{"status":"succeeded"}}` (in-container 7 s polling).
-- `GET /v1/tasks/…/content?stream=1` → 1,225,914 B, `video/mp4`, ffprobe `h264 768×1344 + aac`, `duration=6.583333`, sha256 `09e8e103…`.
-- `HEAD /v1/tasks/…/content` → `307 Location:` (official-style redirect).
-- `POST /v1/tasks` seeds externally-created tasks (restores registry after restart / other client).
-- `GET /v1/usage` → `used:2,remaining:0` after the generation (IP-keyed quota, matches upstream semantics).
+# Evidence (2026-10-05, CDP-attach cleanup pass)
+- `app/main.py`: dead curl_cffi cookie layer removed
+  (`CookieProvider`/`COOKIES`/`_base_headers`/`MM_XFF`/`IPV4`/cookie envs);
+  imports trimmed; `_submit` drops unused `idem`; `healthz` reports the `cdp`
+  endpoint; default bind `127.0.0.1`; non-task upstream payload → `503` with
+  an actionable CF re-challenge message instead of a `KeyError` 500.
+- Live (local uvicorn, RoxyBrowser Chrome/154 @ `:11611`):
+  - `GET /healthz` → `{"ok":true,"cdp":"localhost:11611","tasks":0}`
+  - `GET /v1/usage` → `{enabled:true,…,limit:2,used:2,remaining:0}`
+  - `POST /v1/tasks` (bad json) → `400 body must be JSON`
+  - `GET /docs` → 200 (1011 B); `openapi.json` → 7 paths
+  - `POST /v1/tasks` seed → `{"ok":true}`; `GET /v1/tasks/{id}` with
+    placeholder creds → upstream `400 A valid trial client id is required`
+    surfaced as a JSON error (no crash — the request genuinely reached
+    siftq.com through the browser's in-page fetch).
+- Prior full-flow evidence (pre-cleanup, unchanged CDP code path):
+  task `2106967203628830720` succeeded; stream 1,225,914 B, `video/mp4`,
+  ffprobe `h264 768×1344 + aac`, `duration=6.583333`, sha256 `09e8e103…`.

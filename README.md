@@ -46,8 +46,9 @@ uvicorn app.main:app --host 127.0.0.1 --port 8080
 
 | Var | Default | Description |
 |-----|---------|-------------|
+| `CDP_HOST` | `localhost` | RoxyBrowser profile CDP host |
 | `CDP_PORT` | `11611` | RoxyBrowser profile CDP port |
-| `HOST` | `0.0.0.0` | Bind address (use `127.0.0.1` for local-only) |
+| `HOST` | `127.0.0.1` | Bind address (use `0.0.0.0` only behind `API_KEY`) |
 | `PORT` | `8080` | Listen port |
 | `API_KEY` | — | Optional bearer token for write endpoints |
 | `POLL_SECONDS` | `7` | Poll interval for `:await` |
@@ -57,5 +58,5 @@ uvicorn app.main:app --host 127.0.0.1 --port 8080
 ## Security
 
 - `API_KEY` optional — when set, write endpoints require `Authorization: Bearer <key>`
-- Default bind is `0.0.0.0` — **set `HOST=127.0.0.1` for local-only use**
+- Default bind is `127.0.0.1` (fail-closed for local use); set `HOST=0.0.0.0` only when exposing behind `API_KEY`
 - No credentials stored; all auth is handled by the attached browser profile
