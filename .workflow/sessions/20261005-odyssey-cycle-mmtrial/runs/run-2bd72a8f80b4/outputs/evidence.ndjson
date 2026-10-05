@@ -1,0 +1,2 @@
+{"ts": "2026-10-05T06:18:21Z", "phase": "render", "type": "evidence", "source": "odyssey-ui", "content": "/docs 200 swagger-ui marker; /openapi.json exposes 7 routes", "note": ""}
+{"ts": "2026-10-05T06:18:21Z", "phase": "report", "type": "summary", "source": "odyssey-ui", "content": "UI contract verified; no custom UI required", "note": ""}

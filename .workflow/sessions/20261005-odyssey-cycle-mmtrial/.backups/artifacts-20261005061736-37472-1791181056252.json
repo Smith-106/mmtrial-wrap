@@ -1,6 +1,6 @@
 {
   "schema_version": "artifacts/1.0",
-  "revision": 12,
+  "revision": 11,
   "artifacts": {
     "ART-ccaca2789390bf5393b8": {
       "kind": "evidence",
@@ -401,7 +401,7 @@
       "schema_version": "evidence/1.0",
       "content_hash": "e2ac856ac51235fd4667bdc89a7107c45f2979037827790f4f25a2f9b681b94c",
       "size": 489,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": "ART-5ad28cf78b6563f07a41"
     },
@@ -414,7 +414,7 @@
       "schema_version": "exploration/1.0",
       "content_hash": "c7aa82db6e44e79d21d0ee3c059220aa5105111527ecdb5fd40aa9c3fd89ea3b",
       "size": 196,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": "ART-c519343c718de4c08489"
     },
@@ -427,7 +427,7 @@
       "schema_version": "session/1.0",
       "content_hash": "0a86d2afd72fac4bf9b20a872d91df23430cd2000022c5bb5117b4001a8cacc8",
       "size": 2834,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": "ART-948d7fd41622e8fe2e57"
     },
@@ -440,7 +440,7 @@
       "schema_version": "review-report/1.0",
       "content_hash": "29b7e4be441fad4e4a6cae6fbd191e5acf2e79ee9104f2396391c6d3cbc51019",
       "size": 484,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": "ART-5a3103e01089fe4af6e5"
     },
@@ -534,67 +534,15 @@
       "status": "sealed",
       "derived_from": [],
       "replaces": "ART-1d33290bbf49c475ac90"
-    },
-    "ART-5782d144d5263efabb76": {
-      "kind": "evidence",
-      "role": "evidence",
-      "producer_run_id": "run-04f990963446",
-      "relative_path": "runs/run-04f990963446/outputs/evidence.ndjson",
-      "media_type": "application/x-ndjson",
-      "schema_version": "evidence/1.0",
-      "content_hash": "18595c6955f10fc1f37fc04f2c6010aac220f88e1b3690b5b76dcf77ae06cc5b",
-      "size": 307,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-6f3df184b9ebc5a28986"
-    },
-    "ART-543517b4f525d505a430": {
-      "kind": "exploration",
-      "role": "evidence",
-      "producer_run_id": "run-04f990963446",
-      "relative_path": "runs/run-04f990963446/outputs/explore.json",
-      "media_type": "application/json",
-      "schema_version": "exploration/1.0",
-      "content_hash": "119949b09c64b5a5a9606f1d8fd7bdda8015c20f54fe60990a6b3d6e98875456",
-      "size": 161,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-a40a2642309a6b0f1374"
-    },
-    "ART-58ac9f608c333decd7f5": {
-      "kind": "session",
-      "role": "primary",
-      "producer_run_id": "run-04f990963446",
-      "relative_path": "runs/run-04f990963446/outputs/session.json",
-      "media_type": "application/json",
-      "schema_version": "session/1.0",
-      "content_hash": "e682bcc6e26ac57a4820eca25297a53ad23b08a380c3b92df09c7f208cdb1d7b",
-      "size": 2476,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-8c93ac06948bc09a074d"
-    },
-    "ART-c32f91908c9ce56cecbc": {
-      "kind": "review-report",
-      "role": "primary",
-      "producer_run_id": "run-04f990963446",
-      "relative_path": "runs/run-04f990963446/outputs/understanding.md",
-      "media_type": "text/markdown",
-      "schema_version": "review-report/1.0",
-      "content_hash": "5757d50a6bc272a127c736f35c1f9df7272bea615d59aeb0aeea57a07bcd5584",
-      "size": 219,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-31f2d4405dc8c6d99a1a"
     }
   },
   "aliases": {
     "latest-audit": "ART-34963ca0e0c941eae23c",
     "improvement-report": "ART-085bfa84efc3d083e88e",
-    "review-evidence": "ART-5782d144d5263efabb76",
-    "review-explore": "ART-543517b4f525d505a430",
-    "review-session": "ART-58ac9f608c333decd7f5",
-    "review-understanding": "ART-c32f91908c9ce56cecbc",
+    "review-evidence": "ART-6f3df184b9ebc5a28986",
+    "review-explore": "ART-a40a2642309a6b0f1374",
+    "review-session": "ART-8c93ac06948bc09a074d",
+    "review-understanding": "ART-31f2d4405dc8c6d99a1a",
     "debug-evidence": "ART-63aef2603c44f6a912cd",
     "debug-explore": "ART-6a8a9be2277412069c27",
     "debug-session": "ART-f06279384fe7475ce67a",

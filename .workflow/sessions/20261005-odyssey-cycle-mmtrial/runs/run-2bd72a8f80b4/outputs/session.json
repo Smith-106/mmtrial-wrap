@@ -1,0 +1,103 @@
+{
+  "session_id": "odyssey-ui-20261005-0620",
+  "mode": "ui",
+  "target": "mmtrial-wrap /docs (FastAPI Swagger)",
+  "dimensions": [
+    "rendering",
+    "affordances",
+    "docs-completeness"
+  ],
+  "current_state": "S_RECORD",
+  "flags": {
+    "read_only": true
+  },
+  "phase_goals": [
+    {
+      "id": "G1",
+      "goal": "UI rendered",
+      "phase": "S_RENDER",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G2",
+      "goal": "Surface audited",
+      "phase": "S_AUDIT",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G3",
+      "goal": "Findings classified",
+      "phase": "S_CLASSIFY",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G4",
+      "goal": "Report written",
+      "phase": "S_REPORT",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G5",
+      "goal": "Learnings persisted",
+      "phase": "S_RECORD",
+      "status": "done",
+      "completion_confirmed": true
+    }
+  ],
+  "phase_goals_all_done": true,
+  "render_evidence": {
+    "docs_url": "http://localhost:8080/docs",
+    "status": 200,
+    "bytes": 1011,
+    "openapi_paths": [
+      "/healthz",
+      "/v1/usage",
+      "/v1/generations",
+      "/v1/generations:await",
+      "/v1/tasks",
+      "/v1/tasks/{task_id}",
+      "/v1/tasks/{task_id}/content"
+    ],
+    "swagger_ui_marker": "present"
+  },
+  "scan_result": {
+    "findings": [
+      {
+        "id": "UI1",
+        "sev": "info",
+        "class": "no-UI-to-optimize",
+        "desc": "wrapper intentionally ships API surface only; no custom HTML/JS beyond Swagger UI — documented contract"
+      }
+    ],
+    "remaining_actionable": 0
+  },
+  "patterns": [],
+  "generalization_stats": {
+    "patterns_extracted": 0,
+    "total_hits": 0,
+    "cross_layer_confirmed": 0,
+    "regression_risks": 0,
+    "by_layer": {},
+    "deepening_triggered": false
+  },
+  "cross_phase_loops": 0,
+  "max_loops": 5,
+  "self_iteration_log": [],
+  "progress_metrics": {
+    "phase_stats": {
+      "S_RENDER": {
+        "ok": true
+      }
+    },
+    "stale_count": 0,
+    "last_productive_phase": "S_RENDER",
+    "convergence_trend": "stable"
+  },
+  "directions_tried": [],
+  "created_at": "2026-10-05T06:20:00Z",
+  "updated_at": "2026-10-05T06:23:00Z"
+}

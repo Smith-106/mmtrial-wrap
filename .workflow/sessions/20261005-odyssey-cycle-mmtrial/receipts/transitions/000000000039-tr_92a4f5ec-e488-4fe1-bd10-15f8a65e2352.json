@@ -1,0 +1,132 @@
+{
+  "schema_version": "transition-receipt/2.0",
+  "transition_id": "tr_92a4f5ec-e488-4fe1-bd10-15f8a65e2352",
+  "request_id": "cli-753d5b19249126df",
+  "session_id": "20261005-odyssey-cycle-mmtrial",
+  "activity_revision": 39,
+  "target_type": "orchestration",
+  "target_id": "20261005-odyssey-cycle-mmtrial",
+  "revision_before": 38,
+  "revision_after": 39,
+  "actor_id": "actor-niko",
+  "participant_id": "actor-niko",
+  "reason": "cli:run complete",
+  "evidence_refs": [],
+  "recorded_at": "2026-10-05T06:17:36.165Z",
+  "result": {
+    "operation": "run-complete-and-seal",
+    "run_id": "run-04f990963446",
+    "run_revision": 2,
+    "status": "sealed",
+    "orchestration_revision": 39,
+    "artifact_publication": {
+      "authority": "transition-receipt/2.0",
+      "artifact_registry_revision": 12,
+      "artifact_ids": [
+        "ART-5782d144d5263efabb76",
+        "ART-543517b4f525d505a430",
+        "ART-58ac9f608c333decd7f5",
+        "ART-c32f91908c9ce56cecbc"
+      ],
+      "primary_artifact_id": "ART-58ac9f608c333decd7f5",
+      "artifacts": {
+        "ART-5782d144d5263efabb76": {
+          "kind": "evidence",
+          "role": "evidence",
+          "producer_run_id": "run-04f990963446",
+          "relative_path": "runs/run-04f990963446/outputs/evidence.ndjson",
+          "media_type": "application/x-ndjson",
+          "schema_version": "evidence/1.0",
+          "content_hash": "18595c6955f10fc1f37fc04f2c6010aac220f88e1b3690b5b76dcf77ae06cc5b",
+          "size": 307,
+          "status": "sealed",
+          "derived_from": [],
+          "replaces": "ART-6f3df184b9ebc5a28986"
+        },
+        "ART-543517b4f525d505a430": {
+          "kind": "exploration",
+          "role": "evidence",
+          "producer_run_id": "run-04f990963446",
+          "relative_path": "runs/run-04f990963446/outputs/explore.json",
+          "media_type": "application/json",
+          "schema_version": "exploration/1.0",
+          "content_hash": "119949b09c64b5a5a9606f1d8fd7bdda8015c20f54fe60990a6b3d6e98875456",
+          "size": 161,
+          "status": "sealed",
+          "derived_from": [],
+          "replaces": "ART-a40a2642309a6b0f1374"
+        },
+        "ART-58ac9f608c333decd7f5": {
+          "kind": "session",
+          "role": "primary",
+          "producer_run_id": "run-04f990963446",
+          "relative_path": "runs/run-04f990963446/outputs/session.json",
+          "media_type": "application/json",
+          "schema_version": "session/1.0",
+          "content_hash": "e682bcc6e26ac57a4820eca25297a53ad23b08a380c3b92df09c7f208cdb1d7b",
+          "size": 2476,
+          "status": "sealed",
+          "derived_from": [],
+          "replaces": "ART-8c93ac06948bc09a074d"
+        },
+        "ART-c32f91908c9ce56cecbc": {
+          "kind": "review-report",
+          "role": "primary",
+          "producer_run_id": "run-04f990963446",
+          "relative_path": "runs/run-04f990963446/outputs/understanding.md",
+          "media_type": "text/markdown",
+          "schema_version": "review-report/1.0",
+          "content_hash": "5757d50a6bc272a127c736f35c1f9df7272bea615d59aeb0aeea57a07bcd5584",
+          "size": 219,
+          "status": "sealed",
+          "derived_from": [],
+          "replaces": "ART-31f2d4405dc8c6d99a1a"
+        }
+      },
+      "aliases": {
+        "review-evidence": "ART-5782d144d5263efabb76",
+        "review-explore": "ART-543517b4f525d505a430",
+        "review-session": "ART-58ac9f608c333decd7f5",
+        "review-understanding": "ART-c32f91908c9ce56cecbc"
+      }
+    },
+    "output_warnings": [
+      "outputs/evidence.ndjson: missing _meta; inferred kind=evidence",
+      "outputs/explore.json: missing _meta; inferred kind=exploration",
+      "outputs/session.json: missing _meta; inferred kind=session",
+      "outputs/understanding.md: missing frontmatter kind; inferred kind=review-report"
+    ],
+    "next_step_id": "step-13-odyssey-ui",
+    "next": {
+      "suggest_only": true,
+      "command": "maestro run next --session 20261005-odyssey-cycle-mmtrial --actor <actor-id> --expected-orchestration-revision 39 --json",
+      "reason": "Run sealed; explicit run next may allocate the next chain Run"
+    },
+    "continuation": {
+      "operation": "next",
+      "locator": {
+        "session_id": "20261005-odyssey-cycle-mmtrial",
+        "run_id": null
+      },
+      "revision_requirements": {
+        "expected_orchestration_revision": 39,
+        "expected_run_revision": null
+      },
+      "required_caller_fields": [
+        "actor"
+      ]
+    },
+    "knowledge_reconciliation": {
+      "schema_version": "knowledge-reconciliation-receipt/1.0",
+      "candidate_snapshot_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "corpus_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "retrieval_mode": "lexical-kg",
+      "candidates": 0,
+      "duplicates": 0,
+      "conflicts": 0,
+      "review_required": 0,
+      "suppressed": 0,
+      "review_command": "maestro knowledge review 20261005-odyssey-cycle-mmtrial"
+    }
+  }
+}
