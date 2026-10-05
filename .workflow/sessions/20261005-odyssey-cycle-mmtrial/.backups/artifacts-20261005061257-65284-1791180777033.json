@@ -1,6 +1,6 @@
 {
   "schema_version": "artifacts/1.0",
-  "revision": 6,
+  "revision": 5,
   "artifacts": {
     "ART-ccaca2789390bf5393b8": {
       "kind": "evidence",
@@ -102,7 +102,7 @@
       "schema_version": "evidence/1.0",
       "content_hash": "de66fcb4948f39f50463a78eb95fb89b62c584600e0f4536dc87a5910903d8a7",
       "size": 703,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": null
     },
@@ -115,7 +115,7 @@
       "schema_version": "exploration/1.0",
       "content_hash": "5cc322c6c401c2c085a57cd13adb12025aaf77986398287db43e0857d74c78d2",
       "size": 226,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": null
     },
@@ -128,7 +128,7 @@
       "schema_version": "session/1.0",
       "content_hash": "e5707a2094b803700519b7ebcfb4a6702f043eb6088aa27d333c69cffbd7077d",
       "size": 2695,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": null
     },
@@ -141,7 +141,7 @@
       "schema_version": "diagnosis-report/1.0",
       "content_hash": "fe24e3b3ea89e14b024566b656b904e3a8f543d6df72b422616993e940a1138a",
       "size": 1320,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": null
     },
@@ -235,58 +235,6 @@
       "status": "sealed",
       "derived_from": [],
       "replaces": "ART-cdd95823b1c14a695a54"
-    },
-    "ART-c4e6e4af019aa2c5bdfb": {
-      "kind": "evidence",
-      "role": "evidence",
-      "producer_run_id": "run-865e47e0cc61",
-      "relative_path": "runs/run-865e47e0cc61/outputs/evidence.ndjson",
-      "media_type": "application/x-ndjson",
-      "schema_version": "evidence/1.0",
-      "content_hash": "d94415a5fce6738f6f3d1e8804262b15aa4d4b06566a7b876479326fc15894f4",
-      "size": 621,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-7b4b98cd7b8861b73514"
-    },
-    "ART-0b7877481154531edb97": {
-      "kind": "exploration",
-      "role": "evidence",
-      "producer_run_id": "run-865e47e0cc61",
-      "relative_path": "runs/run-865e47e0cc61/outputs/explore.json",
-      "media_type": "application/json",
-      "schema_version": "exploration/1.0",
-      "content_hash": "b08fce963d074032217e61f6e0e57ee230e44624ff746b559f5dd7c47b835e68",
-      "size": 223,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-b38850ea0d47384e516f"
-    },
-    "ART-10533fabf62979d1a75a": {
-      "kind": "session",
-      "role": "primary",
-      "producer_run_id": "run-865e47e0cc61",
-      "relative_path": "runs/run-865e47e0cc61/outputs/session.json",
-      "media_type": "application/json",
-      "schema_version": "session/1.0",
-      "content_hash": "27e1570210ab343b78265f33bd356165de2c38f6d9d201d8fd2f6042840ecc2d",
-      "size": 3044,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-662809ed4997bac9d32e"
-    },
-    "ART-08282f45bd951072c234": {
-      "kind": "diagnosis-report",
-      "role": "primary",
-      "producer_run_id": "run-865e47e0cc61",
-      "relative_path": "runs/run-865e47e0cc61/outputs/understanding.md",
-      "media_type": "text/markdown",
-      "schema_version": "diagnosis-report/1.0",
-      "content_hash": "f32f6eb84a792c86e3cbf80899c3894bb12785cd982c583827cfa5dbacbc6d23",
-      "size": 1064,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-9a34404e2a9d688cb957"
     }
   },
   "aliases": {
@@ -296,9 +244,9 @@
     "review-explore": "ART-c519343c718de4c08489",
     "review-session": "ART-948d7fd41622e8fe2e57",
     "review-understanding": "ART-5a3103e01089fe4af6e5",
-    "debug-evidence": "ART-c4e6e4af019aa2c5bdfb",
-    "debug-explore": "ART-0b7877481154531edb97",
-    "debug-session": "ART-10533fabf62979d1a75a",
-    "debug-understanding": "ART-08282f45bd951072c234"
+    "debug-evidence": "ART-7b4b98cd7b8861b73514",
+    "debug-explore": "ART-b38850ea0d47384e516f",
+    "debug-session": "ART-662809ed4997bac9d32e",
+    "debug-understanding": "ART-9a34404e2a9d688cb957"
   }
 }

@@ -1,0 +1,148 @@
+{
+  "session_id": "odyssey-defensive-20261005-0547",
+  "mode": "defensive",
+  "target": "mmtrial-wrap (read-only)",
+  "dimensions": [
+    "defensive"
+  ],
+  "current_state": "S_RECORD",
+  "flags": {
+    "read_only": true,
+    "skip_generalize": false
+  },
+  "phase_goals": [
+    {
+      "id": "G1",
+      "goal": "Anchors identified",
+      "phase": "S_ANCHOR",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G2",
+      "goal": "Slicing done",
+      "phase": "S_SLICE",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G3",
+      "goal": "Scan complete",
+      "phase": "S_SCAN",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G4",
+      "goal": "Propagation analyzed",
+      "phase": "S_PROPAGATE",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G5",
+      "goal": "Report written",
+      "phase": "S_REPORT",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G6",
+      "goal": "Learnings persisted",
+      "phase": "S_RECORD",
+      "status": "done",
+      "completion_confirmed": true
+    }
+  ],
+  "phase_goals_all_done": true,
+  "anchors": {
+    "critical_vars": [
+      "access_token (in redirect URL)",
+      "task_id registry",
+      "client_id header"
+    ],
+    "sink_layers": {
+      "level_1": [
+        "HTTP response body contains access_token URL"
+      ]
+    }
+  },
+  "scan_result": {
+    "by_pattern": {
+      "exception-swallow": 1,
+      "default-substitution": 1,
+      "silent-zero": 1
+    },
+    "candidates": [
+      {
+        "id": "DF1",
+        "loc": "_refresh_headless bare except",
+        "transform": "Exception->Empty str",
+        "sink": "cookie chain",
+        "risk": "low — gated by AUTO_CLEARANCE=1"
+      },
+      {
+        "id": "DF2",
+        "loc": "TASKS registry on malformed submit",
+        "transform": "Missing->record w/ no task_id",
+        "sink": "GET /v1/tasks returns junk entry",
+        "risk": "low"
+      },
+      {
+        "id": "DF3",
+        "loc": "status default 'queued' on upstream parse miss",
+        "transform": "Exception->Default",
+        "sink": "status polling returns stale 'queued'",
+        "risk": "low"
+      }
+    ]
+  },
+  "propagation": {
+    "confirmed_chains": [
+      "refresh Exception -> '' -> no-cookie POST -> CF 502 (observed)"
+    ],
+    "risky_sinks": [
+      "POST response surfaces non-JSON upstream -> 502 mapped via HTTPException (correct)"
+    ],
+    "q4_hidden": 0
+  },
+  "audit_result": {
+    "findings_count": 3,
+    "by_risk": {
+      "low": 3
+    },
+    "read_only_verified": true
+  },
+  "patterns": [],
+  "generalization_stats": {
+    "patterns_extracted": 1,
+    "total_hits": 3,
+    "cross_layer_confirmed": 0,
+    "regression_risks": 0,
+    "by_layer": {
+      "syntax": 0,
+      "semantic": 2,
+      "structural": 1
+    },
+    "deepening_triggered": false
+  },
+  "cross_phase_loops": 0,
+  "max_loops": 5,
+  "self_iteration_log": [],
+  "progress_metrics": {
+    "phase_stats": {
+      "S_ANCHOR": {
+        "new": 0
+      },
+      "S_SCAN": {
+        "new": 3
+      }
+    },
+    "stale_count": 0,
+    "last_productive_phase": "S_SCAN",
+    "convergence_trend": "unknown"
+  },
+  "directions_tried": [],
+  "created_at": "2026-10-05T05:47:00Z",
+  "updated_at": "2026-10-05T05:52:00Z"
+}

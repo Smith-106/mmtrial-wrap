@@ -1,0 +1,12 @@
+{
+  "critical_vars": [
+    "access_token (in redirect URL)",
+    "task_id registry",
+    "client_id header"
+  ],
+  "sink_layers": {
+    "level_1": [
+      "HTTP response body contains access_token URL"
+    ]
+  }
+}
