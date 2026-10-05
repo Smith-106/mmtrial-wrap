@@ -41,3 +41,30 @@ Severity matrix: 1 high (F1), 6 medium, 3 low.
 - **F10** (fix): no retry on idempotent GETs
 
 Action plan: fix 9 (F1-partial, F2-F8, F10); decision 1 (F9 module split deferred).
+
+## 5. Fix & Verification
+
+- **F1**: Added optional API_KEY env bearer gate on POST /v1/generations*, POST /v1/tasks; access_token now only leaves via ?stream=1 path or explicit RedirectResponse (risk: low)
+- **F2**: _prune_tasks also invoked inside tasks_lock on register/generate; async lock guards TASKS mutations (risk: low)
+- **F3**: True chunked relay: upstream stream=True via run_in_executor, asyncio.Queue pump yields iter_content(64K), Content-Length passthrough (risk: medium (threading))
+- **F4**: MM_XFF validated as IPv4/CSV via IPV4 regex before use (risk: low)
+- **F5**: stdlib logging; INFO create/refresh, WARNING upstream 4xx, ERROR refresh fail (risk: low)
+- **F6**: Removed dead imports secrets, PlainTextResponse (risk: trivial)
+- **F7**: asyncio.Lock _tasks_lock around TASKS mutations (risk: low)
+- **F8**: request.is_disconnected() checked each poll iter in :await (risk: low)
+- **F10**: _get_with_retry bounded 2-retry exp backoff for idempotent GETs on 5xx/network (risk: low)
+
+Verification: service restarted on new code; /healthz ¡ú ok, /v1/usage ¡ú upstream usage JSON, POST /v1/tasks seed ¡ú ok, GET /v1/tasks/{id} ¡ú upstream status, GET /v1/tasks/{id}/content?stream=1 ¡ú 1,225,914 B, ffprobe h264 768¡Á1344 + aac, duration 6.583333 s.
+
+## 8. Improvement Metrics
+
+| Metric | Before | After |
+|---|---|---|
+| Dead imports | 2 | 0 |
+| TASKS unbounded | yes | lock-guarded, pruned |
+| Streaming buffered full MP4 | yes | chunked relay |
+| Logging | none | stdlib INFO/WARN/ERROR |
+| GET retry | none | 2-retry exp backoff |
+| API key gate | none | optional `API_KEY` env |
+| MM_XFF validation | none | IPv4 regex |
+| :await disconnect stop | no | is_disconnected check |

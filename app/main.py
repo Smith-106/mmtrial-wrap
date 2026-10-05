@@ -12,12 +12,14 @@ that so downstream clients can use a clean, official-looking API:
     GET  /v1/usage                -> quota snapshot
     GET  /healthz
 """
-import asyncio, os, secrets, time, uuid, json
+import asyncio, logging, os, re, time, uuid, json
 from typing import Optional
 
 from fastapi import FastAPI, Request, UploadFile, File, Form, HTTPException
-from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse, PlainTextResponse
+from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
 from curl_cffi import requests as cr, CurlMime
+
+log = logging.getLogger("mmtrial-wrap")
 
 BASE = "https://siftq.com"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -31,11 +33,25 @@ COOKIE_FILE = os.getenv("CF_COOKIE_FILE", "/data/cf_clearance.txt")
 CF_CLEARANCE_ENV = os.getenv("CF_CLEARANCE", "").strip()
 COOKIE_REFRESH_URL = os.getenv("CF_REFRESH_URL", BASE + "/minimax-h3/free-trial")
 PROMPT_DEFAULT = "夜色中的东京街头，一个女孩转身回眸，霓虹在雨中晕开，电影感，慢动作"
+GET_RETRY = int(os.getenv("UPSTREAM_GET_RETRIES", "2"))
+IPV4 = re.compile(r"^\d{1,3}(\.\d{1,3}){3}$")
+MM_XFF = os.getenv("MM_XFF", "").strip()
+API_KEY = os.getenv("API_KEY", "").strip()  # optional: require on write endpoints
 
 app = FastAPI(title="mmtrial-wrap", version="1.0.0")
 _session: Optional[cr.Session] = None
 # in-memory task registry: task_id -> {access_token, client_id, created_at, status}
 TASKS: dict[str, dict] = {}
+_tasks_lock = asyncio.Lock()
+
+
+def _check_api_key(request: Request) -> None:
+    """Optional bearer-token gate for write endpoints when API_KEY is set."""
+    if not API_KEY:
+        return
+    auth = request.headers.get("authorization", "")
+    if auth != f"Bearer {API_KEY}":
+        raise HTTPException(401, "invalid or missing API key")
 
 
 def session() -> cr.Session:
@@ -118,9 +134,9 @@ class CookieProvider:
                 pg.goto(COOKIE_REFRESH_URL, timeout=45000, wait_until="domcontentloaded")
                 pg.wait_for_timeout(4000)  # let CF challenge settle
                 for c in ctx.cookies(BASE):
-                    if c["name"] == "cf_clearance":
+                    if c.get("name") == "cf_clearance":
                         browser.close()
-                        return c["value"]
+                        return c.get("value", "")
                 browser.close()
         except Exception:
             pass
@@ -142,9 +158,9 @@ def _base_headers(client_id: str, idem: str, with_cookie: bool = True) -> dict:
         c = COOKIES.get()
         if c:
             h["Cookie"] = "cf_clearance=" + c
-    xff = os.getenv("MM_XFF", "").strip()
-    if xff:
-        h["X-Forwarded-For"] = xff
+    # F4: only forward a well-formed IP/CSV list, never raw env text.
+    if MM_XFF and all(IPV4.match(p.strip()) for p in MM_XFF.split(",")):
+        h["X-Forwarded-For"] = MM_XFF
     return h
 
 
@@ -171,12 +187,30 @@ def _post_generation(client_id: str, idem: str, mp: CurlMime) -> cr.Response:
                           multipart=mp, timeout=60)
 
 
+async def _get_with_retry(url: str, headers: dict, timeout: int = 20,
+                          retries: int = GET_RETRY):
+    """Bounded exponential retry for idempotent GETs on 5xx/network errors."""
+    last: Optional[Exception] = None
+    for i in range(retries + 1):
+        try:
+            r = await asyncio.to_thread(session().get, url, headers=headers, timeout=timeout)
+            if r.status_code < 500:
+                return r
+        except Exception as e:
+            last = e
+        await asyncio.sleep(0.5 * (2 ** i))
+    if last:
+        raise HTTPException(502, f"upstream GET failed after {retries + 1} tries: {last}")
+    raise HTTPException(502, "upstream GET exhausted retries")
+
+
 async def _submit(client_id: str, idem: str, image: bytes, image_name: str,
                   prompt: str, ratio: str, duration: str, visitor_id: str) -> dict:
     mp = _gen_multipart(client_id, image, image_name, prompt, ratio, duration, visitor_id)
     r = await asyncio.to_thread(_post_generation, client_id, idem, mp)
     if r.status_code in (403, 502):
         # cf_clearance may be stale/invalid -> force headless refresh once, retry.
+        log.warning("submit got %s, refreshing cf_clearance", r.status_code)
         COOKIES.invalidate()
         await COOKIES.ensure(force=True)
         if COOKIES.get():
@@ -184,7 +218,10 @@ async def _submit(client_id: str, idem: str, image: bytes, image_name: str,
     try:
         data = r.json()
     except Exception:
+        log.error("upstream non-JSON %s: %s", r.status_code, r.text[:120])
         raise HTTPException(502, f"upstream non-JSON {r.status_code}: {r.text[:200]}")
+    if r.status_code != 200:
+        log.warning("upstream submit -> %s %s", r.status_code, str(data)[:160])
     return {"http": r.status_code, "data": data}
 
 
@@ -215,6 +252,7 @@ async def create_generation(
     duration: str = Form("6"),
     client_id: Optional[str] = Form(None),
 ):
+    _check_api_key(request)
     return await _create_generation_impl(image, prompt, ratio, duration, client_id)
 
 
@@ -228,16 +266,24 @@ async def create_generation_await(
     client_id: Optional[str] = Form(None),
     timeout_s: int = Form(DEFAULT_MAX_WAIT_S),
 ):
+    _check_api_key(request)
     out = await _create_generation_impl(image, prompt, ratio, duration, client_id)
     if out.status_code != 200:
         return out
-    body = json.loads(out.body)
+    body = json.loads(bytes(out.body))
     tid = body["task_id"]
     deadline = time.time() + max(10, int(timeout_s))
-    async def _next_state():
-        return await _get_status(tid)
     while time.time() < deadline:
-        st = await _next_state()
+        # F8: cooperative client-disconnect check.
+        try:
+            if await request.is_disconnected():
+                log.info("client disconnected; stop polling %s", tid)
+                raise HTTPException(499, "client closed request")
+        except HTTPException:
+            raise
+        except Exception:
+            pass
+        st = await _get_status(tid)
         if st["status"] in ("succeeded", "failed", "error"):
             body["final"] = st
             if st["status"] == "succeeded":
@@ -248,16 +294,19 @@ async def create_generation_await(
 
 
 @app.post("/v1/tasks")
-async def register_task(body: dict):
+async def register_task(request: Request):
     """Seed the registry with an externally-created task so /v1/tasks and
     /v1/tasks/{id}/content work across restarts / other clients."""
+    _check_api_key(request)
+    body = await request.json()
     tid = str(body.get("task_id") or "")
     tok = body.get("access_token") or ""
     cid = body.get("client_id") or ""
     if not tid or not tok:
         raise HTTPException(400, "task_id and access_token required")
-    TASKS[tid] = {"access_token": tok, "client_id": cid,
-                  "created_at": time.time(), "status": "registered"}
+    async with _tasks_lock:
+        TASKS[tid] = {"access_token": tok, "client_id": cid,
+                      "created_at": time.time(), "status": "registered"}
     return {"ok": True, "task_id": tid}
 
 
@@ -275,9 +324,11 @@ async def _create_generation_impl(image: UploadFile, prompt: Optional[str],
         raise HTTPException(out["http"], out["data"])
     d = out["data"]
     tid = str(d["task_id"])
-    TASKS[tid] = {"access_token": d["access_token"], "client_id": cid,
-                  "created_at": time.time(), "status": d.get("status", "queued")}
-    _prune_tasks()
+    async with _tasks_lock:
+        TASKS[tid] = {"access_token": d["access_token"], "client_id": cid,
+                      "created_at": time.time(), "status": d.get("status", "queued")}
+        _prune_tasks()
+    log.info("generation created task_id=%s upstream_status=%s", tid, d.get("status"))
     return JSONResponse({
         "task_id": tid,
         "status": d.get("status", "queued"),
@@ -302,15 +353,15 @@ def _resolve_task(task_id: str, client_id: Optional[str], access_token: Optional
 async def _get_status(tid: str, client_id: Optional[str] = None,
                       access_token: Optional[str] = None) -> dict:
     t = _resolve_task(tid, client_id, access_token)
-    r = await asyncio.to_thread(
-        session().get,
+    r = await _get_with_retry(
         f"{TRIAL_URL}/video-generation/{tid}?access_token={t['access_token']}",
-        headers={"Accept": "application/json"}, timeout=20)
+        headers={"Accept": "application/json"})
     try:
         d = r.json()
     except Exception:
         raise HTTPException(502, f"upstream status error {r.status_code}")
-    TASKS.setdefault(tid, {})["status"] = d.get("status")
+    async with _tasks_lock:
+        TASKS.setdefault(tid, {})["status"] = d.get("status")
     return d
 
 
@@ -331,13 +382,43 @@ async def task_content(task_id: str, stream: bool = False,
            f"?client_id={t['client_id']}&access_token={t['access_token']}")
     if not stream:
         return RedirectResponse(url)
-    # stream: fetch then pipe
-    r = await asyncio.to_thread(session().get, url,
-                                headers={"Accept": "application/octet-stream"}, timeout=120)
+    # Chunked relay: issue the upstream GET in a thread pool and yield chunks
+    # through an asyncio queue so no MP4 is fully buffered server-side.
+    import concurrent.futures
+    def _fetch():
+        return session().get(url, headers={"Accept": "application/octet-stream"},
+                             timeout=180, stream=True)
+    loop = asyncio.get_event_loop()
+    r = await loop.run_in_executor(None, _fetch)
     if r.status_code != 200:
         raise HTTPException(r.status_code, f"upstream content error: {r.text[:200]}")
-    return StreamingResponse(iter([r.content]), media_type="video/mp4",
-                             headers={"Content-Disposition": f'inline; filename="{task_id}.mp4"'})
+    q: asyncio.Queue = asyncio.Queue(maxsize=8)
+    DONE = object()
+    def _pump():
+        try:
+            for chunk in r.iter_content(64 * 1024):
+                asyncio.run_coroutine_threadsafe(q.put(chunk), loop)
+        except Exception as e:
+            asyncio.run_coroutine_threadsafe(q.put(e), loop)
+        finally:
+            asyncio.run_coroutine_threadsafe(q.put(DONE), loop)
+    pump = loop.run_in_executor(None, _pump)
+    async def _chunks():
+        try:
+            while True:
+                item = await q.get()
+                if item is DONE:
+                    break
+                if isinstance(item, Exception):
+                    raise item
+                yield item
+        finally:
+            pump.cancel()
+    headers = {"Content-Disposition": f'inline; filename="{task_id}.mp4"'}
+    cl = r.headers.get("content-length")
+    if cl:
+        headers["Content-Length"] = cl
+    return StreamingResponse(_chunks(), media_type="video/mp4", headers=headers)
 
 
 def _prune_tasks() -> None:
