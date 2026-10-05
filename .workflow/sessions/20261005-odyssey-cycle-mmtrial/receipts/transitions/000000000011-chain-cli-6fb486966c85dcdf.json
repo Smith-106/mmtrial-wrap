@@ -1,0 +1,151 @@
+{
+  "schema_version": "transition-receipt/2.0",
+  "transition_id": "chain-cli-6fb486966c85dcdf",
+  "request_id": "cli-6fb486966c85dcdf",
+  "session_id": "20261005-odyssey-cycle-mmtrial",
+  "activity_revision": 11,
+  "target_type": "orchestration",
+  "target_id": "20261005-odyssey-cycle-mmtrial",
+  "revision_before": 10,
+  "revision_after": 11,
+  "actor_id": "actor-niko",
+  "participant_id": "actor-niko",
+  "reason": "cli:chain insert",
+  "evidence_refs": [],
+  "recorded_at": "2026-10-05T04:53:02.869Z",
+  "result": {
+    "kind": "insert",
+    "chain": [
+      {
+        "step_id": "step-1-odyssey-improve",
+        "command": "odyssey-improve",
+        "args": [
+          "mmtrial-wrap (improve pass 1)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-2-odyssey-review",
+        "command": "odyssey-review",
+        "args": [
+          "mmtrial-wrap (review pass 2)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-3-odyssey-debug",
+        "command": "odyssey-debug",
+        "args": [
+          "mmtrial-wrap (debug pass 3)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-4-odyssey-improve",
+        "command": "odyssey-improve",
+        "args": [
+          "mmtrial-wrap (improve pass 4)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-5-odyssey-review",
+        "command": "odyssey-review",
+        "args": [
+          "mmtrial-wrap (review pass 5)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-6-odyssey-debug",
+        "command": "odyssey-debug",
+        "args": [
+          "mmtrial-wrap (debug pass 6)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-7-odyssey-defensive",
+        "command": "odyssey-defensive",
+        "args": [
+          "mmtrial-wrap (defensive pass 7)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-8-odyssey-debug",
+        "command": "odyssey-debug",
+        "args": [
+          "mmtrial-wrap (debug pass 8)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-9-odyssey-review",
+        "command": "odyssey-review",
+        "args": [
+          "mmtrial-wrap (review pass 9)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-10-odyssey-security",
+        "command": "odyssey-security",
+        "args": [
+          "mmtrial-wrap (security pass 10)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      }
+    ]
+  }
+}

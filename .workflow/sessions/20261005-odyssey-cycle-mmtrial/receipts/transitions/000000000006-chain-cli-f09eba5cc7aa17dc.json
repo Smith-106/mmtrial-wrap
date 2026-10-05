@@ -1,0 +1,86 @@
+{
+  "schema_version": "transition-receipt/2.0",
+  "transition_id": "chain-cli-f09eba5cc7aa17dc",
+  "request_id": "cli-f09eba5cc7aa17dc",
+  "session_id": "20261005-odyssey-cycle-mmtrial",
+  "activity_revision": 6,
+  "target_type": "orchestration",
+  "target_id": "20261005-odyssey-cycle-mmtrial",
+  "revision_before": 5,
+  "revision_after": 6,
+  "actor_id": "actor-niko",
+  "participant_id": "actor-niko",
+  "reason": "cli:chain insert",
+  "evidence_refs": [],
+  "recorded_at": "2026-10-05T04:52:58.465Z",
+  "result": {
+    "kind": "insert",
+    "chain": [
+      {
+        "step_id": "step-1-odyssey-improve",
+        "command": "odyssey-improve",
+        "args": [
+          "mmtrial-wrap (improve pass 1)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-2-odyssey-review",
+        "command": "odyssey-review",
+        "args": [
+          "mmtrial-wrap (review pass 2)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-3-odyssey-debug",
+        "command": "odyssey-debug",
+        "args": [
+          "mmtrial-wrap (debug pass 3)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-4-odyssey-improve",
+        "command": "odyssey-improve",
+        "args": [
+          "mmtrial-wrap (improve pass 4)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-5-odyssey-review",
+        "command": "odyssey-review",
+        "args": [
+          "mmtrial-wrap (review pass 5)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,212 @@
+{
+  "session_id": "odyssey-improve-20261005-0453",
+  "mode": "improve",
+  "target": "mmtrial-wrap (app/main.py 358 LoC + Dockerfile + compose)",
+  "dimensions": [
+    "performance",
+    "security",
+    "architecture",
+    "reliability",
+    "observability",
+    "maintainability"
+  ],
+  "current_state": "S_DIAGNOSE",
+  "flags": {
+    "skip_fix": false,
+    "skip_generalize": false,
+    "auto_confirm": true
+  },
+  "phase_goals": [
+    {
+      "id": "G1",
+      "goal": "Survey completed",
+      "phase": "S_SURVEY",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G2",
+      "goal": "Audit completed",
+      "phase": "S_AUDIT",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G3",
+      "goal": "Diagnosis completed",
+      "phase": "S_DIAGNOSE",
+      "status": "pending",
+      "completion_confirmed": false
+    },
+    {
+      "id": "G4",
+      "goal": "Zero remaining: all findings fixed and verified",
+      "phase": "S_VERIFY",
+      "status": "pending",
+      "completion_confirmed": false
+    },
+    {
+      "id": "G5",
+      "goal": "Pattern generalized",
+      "phase": "S_GENERALIZE",
+      "status": "pending",
+      "completion_confirmed": false
+    },
+    {
+      "id": "G6",
+      "goal": "Discoveries triaged",
+      "phase": "S_DISCOVER",
+      "status": "pending",
+      "completion_confirmed": false
+    },
+    {
+      "id": "G7",
+      "goal": "Learnings persisted",
+      "phase": "S_RECORD",
+      "status": "pending",
+      "completion_confirmed": false
+    }
+  ],
+  "phase_goals_all_done": false,
+  "baseline_metrics": {},
+  "audit_result": {
+    "findings": [
+      {
+        "id": "F1",
+        "sev": "high",
+        "dim": "security",
+        "title": "Unauthenticated task registry + access_token in redirect",
+        "file": "app/main.py",
+        "line": "275-279,332",
+        "desc": "POST /v1/tasks accepts arbitrary task_id/access_token (no auth). /v1/tasks/{id}/content 307-redirects to upstream URL embedding access_token -> token leaks into Location header, browser history, proxy logs, Referer.",
+        "sug": "Optionally require an API key (env) for write endpoints; for content, prefer ?stream=1 default or strip access_token exposure (proxy streaming only)."
+      },
+      {
+        "id": "F2",
+        "sev": "medium",
+        "dim": "reliability",
+        "title": "Unbounded TASKS dict",
+        "file": "app/main.py",
+        "line": "36,282,321",
+        "desc": "_prune_tasks only invoked inside _create_generation_impl; a registry-heavy read-only workload never prunes; TASKS grows until process restart.",
+        "sug": "Prune on a periodic timer or inside _resolve_task/_get_status."
+      },
+      {
+        "id": "F3",
+        "sev": "medium",
+        "dim": "performance",
+        "title": "Pseudo-streaming buffers whole MP4 in memory",
+        "file": "app/main.py",
+        "line": "346-349",
+        "desc": "StreamingResponse(iter([r.content])) first downloads the full file into memory, then yields one chunk; defeats streaming and doubles peak memory.",
+        "sug": "Use curl_cffi streaming (r.iter_content) wrapped in an async generator and pass Content-Length through."
+      },
+      {
+        "id": "F4",
+        "sev": "medium",
+        "dim": "security",
+        "title": "MM_XFF env injected unvalidated into X-Forwarded-For",
+        "file": "app/main.py",
+        "line": "135-137",
+        "desc": "Env-controlled header value; malformed or multi-IP strings forwarded verbatim; could inject CR or odd formats (defensive, not exploitable here, but unhygienic).",
+        "sug": "Validate with a strict IP/CSV regex before use."
+      },
+      {
+        "id": "F5",
+        "sev": "medium",
+        "dim": "observability",
+        "title": "Zero logging",
+        "file": "app/main.py",
+        "desc": "No logging at all ¡ª upstream failures, cookie refresh attempts, task creation events invisible.",
+        "sug": "Add stdlib logging (INFO lifecycle, WARNING upstream 4xx/5xx, ERROR refresh failure)."
+      },
+      {
+        "id": "F6",
+        "sev": "low",
+        "dim": "maintainability",
+        "title": "Dead imports",
+        "file": "app/main.py",
+        "line": "15,19",
+        "desc": "secrets, PlainTextResponse imported, unused.",
+        "sug": "Remove."
+      },
+      {
+        "id": "F7",
+        "sev": "low",
+        "dim": "reliability",
+        "title": "Unlocked TASKS mutation",
+        "file": "app/main.py",
+        "line": "308",
+        "desc": "_get_status writes TASKS.setdefault without lock; races with _prune_tasks in async loop.",
+        "sug": "asyncio.Lock around registry mutation or single-writer pattern."
+      },
+      {
+        "id": "F8",
+        "sev": "low",
+        "dim": "reliability",
+        "title": ":await poll ignores client disconnect",
+        "file": "app/main.py",
+        "line": "230-243",
+        "desc": "Polling continues after client disconnects (uvicorn cancels the task eventually on some setups; not guaranteed).",
+        "sug": "Check request.is_disconnected() in the loop (best-effort)."
+      },
+      {
+        "id": "F9",
+        "sev": "low",
+        "dim": "architecture",
+        "title": "God-module",
+        "file": "app/main.py",
+        "desc": "All logic in one 358-line file; acceptable at this size but boundary already visible (client vs provider vs routes).",
+        "sug": "Consider split if features grow; record as decision, not fix."
+      },
+      {
+        "id": "F10",
+        "sev": "medium",
+        "dim": "reliability",
+        "title": "No upstream timeout/retry policy on GETs",
+        "file": "app/main.py",
+        "line": "196-206,304-310",
+        "desc": "Status/content GETs use fixed timeouts, no retry, no backoff; transient CF 5xx bubbles straight to caller as 502.",
+        "sug": "Small bounded retry with exponential backoff for idempotent GETs."
+      }
+    ],
+    "by_dim": {
+      "security": 3,
+      "reliability": 3,
+      "performance": 1,
+      "observability": 1,
+      "maintainability": 1,
+      "architecture": 1
+    },
+    "by_sev": {
+      "high": 1,
+      "medium": 6,
+      "low": 3
+    }
+  },
+  "diagnoses": [],
+  "patterns": [],
+  "confirmation": null,
+  "generalization_stats": null,
+  "cross_phase_loops": 0,
+  "max_loops": 5,
+  "self_iteration_log": [],
+  "progress_metrics": {
+    "phase_stats": {
+      "S_SURVEY": {
+        "new": 2,
+        "repeated": 0
+      },
+      "S_AUDIT": {
+        "new": 10,
+        "repeated": 0
+      }
+    },
+    "stale_count": 0,
+    "last_productive_phase": "",
+    "convergence_trend": "unknown"
+  },
+  "directions_tried": [],
+  "created_at": "2026-10-05T04:53:00Z",
+  "updated_at": "2026-10-05T05:00:00Z"
+}

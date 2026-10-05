@@ -1,0 +1,60 @@
+{
+  "schema_version": "transition-receipt/2.0",
+  "transition_id": "chain-cli-cf3de0196eb1e741",
+  "request_id": "cli-cf3de0196eb1e741",
+  "session_id": "20261005-odyssey-cycle-mmtrial",
+  "activity_revision": 4,
+  "target_type": "orchestration",
+  "target_id": "20261005-odyssey-cycle-mmtrial",
+  "revision_before": 3,
+  "revision_after": 4,
+  "actor_id": "actor-niko",
+  "participant_id": "actor-niko",
+  "reason": "cli:chain insert",
+  "evidence_refs": [],
+  "recorded_at": "2026-10-05T04:52:56.754Z",
+  "result": {
+    "kind": "insert",
+    "chain": [
+      {
+        "step_id": "step-1-odyssey-improve",
+        "command": "odyssey-improve",
+        "args": [
+          "mmtrial-wrap (improve pass 1)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-2-odyssey-review",
+        "command": "odyssey-review",
+        "args": [
+          "mmtrial-wrap (review pass 2)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      },
+      {
+        "step_id": "step-3-odyssey-debug",
+        "command": "odyssey-debug",
+        "args": [
+          "mmtrial-wrap (debug pass 3)"
+        ],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      }
+    ]
+  }
+}
