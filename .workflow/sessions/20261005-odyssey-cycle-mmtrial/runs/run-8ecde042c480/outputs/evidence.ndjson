@@ -30,3 +30,5 @@
 {"ts": "2026-10-05T04:57:56Z", "phase": "fix", "type": "change", "source": "self-fix", "content": "asyncio.Lock _tasks_lock around TASKS mutations", "note": "", "finding_ref": "F7", "risk": "low"}
 {"ts": "2026-10-05T04:57:56Z", "phase": "fix", "type": "change", "source": "self-fix", "content": "request.is_disconnected() checked each poll iter in :await", "note": "", "finding_ref": "F8", "risk": "low"}
 {"ts": "2026-10-05T04:57:56Z", "phase": "fix", "type": "change", "source": "self-fix", "content": "_get_with_retry bounded 2-retry exp backoff for idempotent GETs on 5xx/network", "note": "", "finding_ref": "F10", "risk": "low"}
+{"ts": "2026-10-05T04:59:21Z", "phase": "generalize", "type": "stats", "source": "generalize", "content": "3 layers attempted: syntax=1 (broad except), semantic=1 (unbounded dict), structural=1 (sync->async bridge)", "note": ""}
+{"ts": "2026-10-05T04:59:21Z", "phase": "discovery", "type": "triage", "source": "generalize", "content": "P1 triaged safe (refresh intentionally returns ''); P3 pump already cancels via pump.cancel(). remaining_actionable=0", "note": ""}

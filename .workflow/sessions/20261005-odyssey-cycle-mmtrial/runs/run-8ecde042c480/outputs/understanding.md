@@ -68,3 +68,23 @@ Verification: service restarted on new code; /healthz ¡ú ok, /v1/usage ¡ú upstre
 | API key gate | none | optional `API_KEY` env |
 | MM_XFF validation | none | IPv4 regex |
 | :await disconnect stop | no | is_disconnected check |
+
+## 6. Generalization
+
+| Pattern | Layer | Signature | Risk |
+|---|---|---|---|
+| P1 | syntax | broad `except:` with empty/pass | silent failure |
+| P2 | semantic | in-memory dict registry without TTL | unbounded memory |
+| P3 | structural | sync-thread -> asyncio.Queue bridge | pump leak on disconnect |
+
+Stats: 3 patterns (1/1/1 by layer), 1 cross-layer confirmed (P2), 1 regression risk (P3).
+
+## 7. Discoveries
+
+P1 triaged **safe** â€” `_refresh_headless`'s blanket `except -> ''` is intentional best-effort cookie refresh; failure surfaces through the missing cookie. P3 pump already calls `pump.cancel()` on disconnect. **remaining_actionable = 0**; no cross-phase loop required.
+
+## 9. Engineering Learnings
+
+- **Env-bound auth gate**: optional `API_KEY` env keeps dev UX frictionless while allowing hardened deploys; the bearer check is a one-line dependency on write routes.
+- **Sync->async bridge**: `run_in_executor` + bounded `asyncio.Queue` cleanly solves blocking-IO inside async routes without restructuring the client library.
+- **Upstream token-in-URL**: when the upstream API design leaks credentials in URLs, prefer a streaming/proxy path by default so the token stays on the wire, not in `Location` headers.

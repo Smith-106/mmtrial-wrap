@@ -10,7 +10,7 @@
     "observability",
     "maintainability"
   ],
-  "current_state": "S_GENERALIZE",
+  "current_state": "COMPLETED",
   "flags": {
     "skip_fix": false,
     "skip_generalize": false,
@@ -49,25 +49,25 @@
       "id": "G5",
       "goal": "Pattern generalized",
       "phase": "S_GENERALIZE",
-      "status": "pending",
-      "completion_confirmed": false
+      "status": "done",
+      "completion_confirmed": true
     },
     {
       "id": "G6",
       "goal": "Discoveries triaged",
       "phase": "S_DISCOVER",
-      "status": "pending",
-      "completion_confirmed": false
+      "status": "done",
+      "completion_confirmed": true
     },
     {
       "id": "G7",
       "goal": "Learnings persisted",
       "phase": "S_RECORD",
-      "status": "pending",
-      "completion_confirmed": false
+      "status": "done",
+      "completion_confirmed": true
     }
   ],
-  "phase_goals_all_done": false,
+  "phase_goals_all_done": true,
   "baseline_metrics": {},
   "audit_result": {
     "findings": [
@@ -117,7 +117,7 @@
         "dim": "observability",
         "title": "Zero logging",
         "file": "app/main.py",
-        "desc": "No logging at all ¡ª upstream failures, cookie refresh attempts, task creation events invisible.",
+        "desc": "No logging at all  --  upstream failures, cookie refresh attempts, task creation events invisible.",
         "sug": "Add stdlib logging (INFO lifecycle, WARNING upstream 4xx/5xx, ERROR refresh failure)."
       },
       {
@@ -246,12 +246,51 @@
       "detail": "Bounded 2-retry exponential for GETs on 5xx/network error."
     }
   ],
-  "patterns": [],
+  "patterns": [
+    {
+      "id": "P1",
+      "layer": "syntax",
+      "signature": "broad except with empty/pass body",
+      "desc": "except (OSError|Exception): swallow",
+      "risk": "silent failure hides root cause",
+      "fix_template": "narrow except + log.debug",
+      "confidence": "medium"
+    },
+    {
+      "id": "P2",
+      "layer": "semantic",
+      "signature": "in-memory dict registry without TTL enforcement",
+      "desc": "TASKS-style dict can appear elsewhere",
+      "risk": "unbounded memory under load",
+      "fix_template": "bounded prune + lock",
+      "confidence": "high"
+    },
+    {
+      "id": "P3",
+      "layer": "structural",
+      "signature": "sync-thread -> asyncio.Queue bridge",
+      "desc": "curl_cffi sync client bridged to async route",
+      "risk": "pump leak on disconnect",
+      "fix_template": "run_in_executor + queue + cancel",
+      "confidence": "medium"
+    }
+  ],
   "confirmation": {
     "verdict": "verified",
     "evidence": "all routes re-verified post-change: /healthz,/v1/usage,/v1/tasks(seed+GET),/v1/tasks/{id}/content?stream=1 => 1,225,914 B MP4 h264 768x1344+aac 6.58s"
   },
-  "generalization_stats": null,
+  "generalization_stats": {
+    "patterns_extracted": 3,
+    "total_hits": 3,
+    "cross_layer_confirmed": 1,
+    "regression_risks": 1,
+    "by_layer": {
+      "syntax": 1,
+      "semantic": 1,
+      "structural": 1
+    },
+    "deepening_triggered": false
+  },
   "cross_phase_loops": 0,
   "max_loops": 5,
   "self_iteration_log": [],
@@ -280,5 +319,5 @@
   },
   "directions_tried": [],
   "created_at": "2026-10-05T04:53:00Z",
-  "updated_at": "2026-10-05T05:05:00Z"
+  "updated_at": "2026-10-05T05:12:00Z"
 }
