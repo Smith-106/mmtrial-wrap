@@ -1,0 +1,20 @@
+{
+  "schema_version": "transition-receipt/2.0",
+  "transition_id": "tr_85d90900-5b2c-4122-a00c-1b33a24321fc",
+  "request_id": "cli-b504d85d4644ce98",
+  "session_id": "20261005-odyssey-cycle-mmtrial",
+  "activity_revision": 44,
+  "target_type": "orchestration",
+  "target_id": "20261005-odyssey-cycle-mmtrial",
+  "revision_before": 43,
+  "revision_after": 44,
+  "actor_id": "actor-niko",
+  "participant_id": "actor-niko",
+  "reason": "cli:odyssey complete — 14-step chain finished",
+  "evidence_refs": [],
+  "recorded_at": "2026-10-05T06:19:47.638Z",
+  "result": {
+    "status": "completed",
+    "orchestration_revision": 44
+  }
+}

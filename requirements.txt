@@ -1,4 +1,4 @@
 fastapi
 uvicorn[standard]
 python-multipart
-curl_cffi==0.16.3
+playwright>=1.63.0

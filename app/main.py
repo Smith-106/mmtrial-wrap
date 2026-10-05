@@ -12,12 +12,12 @@ that so downstream clients can use a clean, official-looking API:
     GET  /v1/usage                -> quota snapshot
     GET  /healthz
 """
-import asyncio, concurrent.futures, hmac, logging, os, re, threading, time, uuid, json
+import asyncio, base64, concurrent.futures, hmac, logging, os, re, threading, time, uuid, json
 from typing import Optional
 
 from fastapi import FastAPI, Request, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
-from curl_cffi import requests as cr, CurlMime
+
 
 log = logging.getLogger("mmtrial-wrap")
 
@@ -39,7 +39,6 @@ MM_XFF = os.getenv("MM_XFF", "").strip()
 API_KEY = os.getenv("API_KEY", "").strip()  # optional: require on write endpoints
 
 app = FastAPI(title="mmtrial-wrap", version="1.0.0")
-_session: Optional[cr.Session] = None
 # in-memory task registry: task_id -> {access_token, client_id, created_at, status}
 TASKS: dict[str, dict] = {}
 _tasks_lock = asyncio.Lock()
@@ -54,11 +53,7 @@ def _check_api_key(request: Request) -> None:
         raise HTTPException(401, "invalid or missing API key")
 
 
-def session() -> cr.Session:
-    global _session
-    if _session is None:
-        _session = cr.Session(impersonate="chrome124")
-    return _session
+
 
 
 def _load_cookie() -> str:
@@ -181,70 +176,81 @@ def _base_headers(client_id: str, idem: str, with_cookie: bool = True,
     return h
 
 
-def _gen_multipart(client_id: str, image: bytes, image_name: str, prompt: str,
-                   ratio: str, duration: str, visitor_id: str) -> CurlMime:
-    mp = CurlMime()
-    for k, v in [
-        ("visitorId", visitor_id),
-        ("channelCode", os.getenv("MM_CHANNEL", "direct")),
-        ("sourceHost", os.getenv("MM_SOURCE_HOST", "siftq.com")),
-        ("ratio", ratio),
-        ("duration", str(duration)),
-        ("client_id", client_id),
-        ("prompt", prompt),
-    ]:
-        mp.addpart(name=k, data=v.encode("utf-8"))
-    mp.addpart(name="image", data=image, filename=image_name or "image.jpg",
-               content_type="image/jpeg")
-    return mp
+# ------------------------- CDP in-page fetch ----------------------------------
+
+async def _get_cdp_page():
+    """Attach to the running RoxyBrowser profile's CDP and return the siftq.com page."""
+    try:
+        from playwright.async_api import async_playwright
+    except ImportError:
+        raise HTTPException(503, "playwright not installed")
+    cdp_url = f"http://{os.getenv('CDP_HOST', 'localhost')}:{os.getenv('CDP_PORT', '11611')}"
+    pw = await async_playwright().start()
+    browser = await pw.chromium.connect_over_cdp(cdp_url)
+    # Find the siftq.com page in the attached browser context
+    for ctx in browser.contexts:
+        for page in ctx.pages:
+            if "siftq.com" in page.url:
+                return pw, browser, page
+    raise HTTPException(503, "no siftq.com tab found in attached browser")
 
 
-def _post_generation(client_id: str, idem: str, mp: CurlMime,
-                     cookie_override: Optional[str] = None) -> cr.Response:
-    return session().post(TRIAL_URL + "/video-generation",
-                          headers=_base_headers(client_id, idem, cookie_override=cookie_override),
-                          multipart=mp, timeout=60)
+async def _post_via_cdp(client_id: str, image_b64: str, image_name: str,
+                       prompt: str, ratio: str, duration: str, visitor_id: str) -> dict:
+    """POST generation via the browser page's own fetch() — real fingerprint/cookies/IP."""
+    pw, browser, page = await _get_cdp_page()
+    try:
+        result = await page.evaluate("""async ([fields, b64]) => {
+            const fd = new FormData();
+            for (const [k, v] of Object.entries(fields)) fd.append(k, v);
+            const blob = await (await fetch('data:image/jpeg;base64,' + b64)).blob();
+            fd.append('image', blob, fields.image_name || 'image.jpg');
+            const r = await fetch('/api/minimax-trial/video-generation', {
+                method: 'POST', body: fd
+            });
+            const text = await r.text();
+            let data; try { data = JSON.parse(text); } catch { data = { raw: text.slice(0, 500) }; }
+            return { status: r.status, ok: r.ok, data, headers: Object.fromEntries(r.headers.entries()) };
+        }""", [{
+            "visitorId": visitor_id,
+            "channelCode": os.getenv("MM_CHANNEL", "direct"),
+            "sourceHost": os.getenv("MM_SOURCE_HOST", "siftq.com"),
+            "ratio": ratio,
+            "duration": str(duration),
+            "client_id": client_id,
+            "prompt": prompt,
+            "image_name": image_name,
+        }, image_b64])
+        return result
+    finally:
+        await browser.close()
+        await pw.stop()
 
 
-async def _get_with_retry(url: str, headers: dict, timeout: int = 20,
-                          retries: int = GET_RETRY):
-    """Bounded exponential retry for idempotent GETs on 5xx/network errors."""
-    last: Optional[Exception] = None
-    for i in range(retries + 1):
-        try:
-            r = await asyncio.to_thread(session().get, url, headers=headers, timeout=timeout)
-            if r.status_code < 500:
-                return r
-        except Exception as e:
-            last = e
-        await asyncio.sleep(0.5 * (2 ** i))
-    if last:
-        raise HTTPException(502, f"upstream GET failed after {retries + 1} tries: {last}")
-    raise HTTPException(502, "upstream GET exhausted retries")
+async def _get_status_via_cdp(task_id: str, access_token: str) -> dict:
+    """GET task status via the page's fetch — no cookie management needed."""
+    pw, browser, page = await _get_cdp_page()
+    try:
+        result = await page.evaluate("""async (url) => {
+            const r = await fetch(url);
+            const text = await r.text();
+            let data; try { data = JSON.parse(text); } catch { data = { raw: text.slice(0, 500) }; }
+            return { status: r.status, data };
+        }""", f"/api/minimax-trial/video-generation/{task_id}?access_token={access_token}")
+        return result
+    finally:
+        await browser.close()
+        await pw.stop()
 
 
 async def _submit(client_id: str, idem: str, image: bytes, image_name: str,
                   prompt: str, ratio: str, duration: str, visitor_id: str) -> dict:
-    mp = _gen_multipart(client_id, image, image_name, prompt, ratio, duration, visitor_id)
-    cookie = await COOKIES.get_fresh()
-    r = await asyncio.to_thread(_post_generation, client_id, idem, mp,
-                                cookie_override=cookie)
-    if r.status_code in (403, 502):
-        # cf_clearance may be stale/invalid -> force headless refresh once, retry.
-        log.warning("submit got %s, refreshing cf_clearance", r.status_code)
-        COOKIES.invalidate()
-        fresh = await COOKIES.ensure(force=True)
-        if fresh:
-            r = await asyncio.to_thread(_post_generation, client_id, idem, mp,
-                                        cookie_override=fresh)
-    try:
-        data = r.json()
-    except Exception:
-        log.error("upstream non-JSON %s: %s", r.status_code, r.text[:120])
-        raise HTTPException(502, f"upstream non-JSON {r.status_code}: {r.text[:200]}")
-    if r.status_code != 200:
-        log.warning("upstream submit -> %s %s", r.status_code, str(data)[:160])
-    return {"http": r.status_code, "data": data}
+    image_b64 = base64.b64encode(image).decode()
+    r = await _post_via_cdp(client_id, image_b64, image_name, prompt, ratio, duration, visitor_id)
+    if not r.get("ok"):
+        raise HTTPException(r.get("status", 502), f"upstream error: {r.get('data', {})}")
+    return {"http": 200, "data": r["data"]}\
+
 
 
 # ------------------------- API surface -------------------------------------
@@ -257,12 +263,20 @@ def healthz():
 @app.get("/v1/usage")
 async def usage(client_id: Optional[str] = None):
     cid = client_id or ("mmtrial_" + uuid.uuid4().hex[:32])
-    r = await asyncio.to_thread(
-        session().get, f"{TRIAL_URL}/usage?client_id={cid}", headers={"Accept": "application/json"}, timeout=20)
+    pw, browser, page = await _get_cdp_page()
     try:
-        return r.json()
-    except Exception:
-        raise HTTPException(502, f"upstream usage error {r.status_code}")
+        result = await page.evaluate("""async (url) => {
+            const r = await fetch(url);
+            const text = await r.text();
+            let data; try { data = JSON.parse(text); } catch { data = { raw: text.slice(0, 500) }; }
+            return { status: r.status, data };
+        }""", f"/api/minimax-trial/usage?client_id={cid}")
+        if result["status"] != 200:
+            raise HTTPException(result["status"], f"upstream usage error: {result.get('data', {})}")
+        return result["data"]
+    finally:
+        await browser.close()
+        await pw.stop()
 
 
 @app.post("/v1/generations")
@@ -380,13 +394,10 @@ def _resolve_task(task_id: str, client_id: Optional[str], access_token: Optional
 async def _get_status(tid: str, client_id: Optional[str] = None,
                       access_token: Optional[str] = None) -> dict:
     t = _resolve_task(tid, client_id, access_token)
-    r = await _get_with_retry(
-        f"{TRIAL_URL}/video-generation/{tid}?access_token={t['access_token']}",
-        headers={"Accept": "application/json"})
-    try:
-        d = r.json()
-    except Exception:
-        raise HTTPException(502, f"upstream status error {r.status_code}")
+    r = await _get_status_via_cdp(tid, t["access_token"])
+    if r["status"] != 200:
+        raise HTTPException(r["status"], f"upstream status error: {r.get('data', {})}")
+    d = r["data"]
     async with _tasks_lock:
         TASKS.setdefault(tid, {})["status"] = d.get("status")
     return d
@@ -409,66 +420,37 @@ async def task_content(task_id: str, stream: bool = False,
            f"?client_id={t['client_id']}&access_token={t['access_token']}")
     if not stream:
         return RedirectResponse(url)
-    # Chunked relay with a stop flag: upstream GET streams in a worker thread;
-    # a threading.Event lets the async side halt the pump immediately on
-    # client disconnect (no zombie threads, upstream socket closed).
-    def _fetch():
-        return session().get(url, headers={"Accept": "application/octet-stream"},
-                             timeout=180, stream=True)
-    loop = asyncio.get_event_loop()
-    r = await loop.run_in_executor(None, _fetch)
-    if r.status_code != 200:
-        raise HTTPException(r.status_code, f"upstream content error: {r.text[:200]}")
-    stop = threading.Event()
-    q: asyncio.Queue = asyncio.Queue(maxsize=8)
-    DONE = object()
-
-    def _qput(item):
-        """Blocking put that still honours the stop flag."""
-        while not stop.is_set():
-            try:
-                fut = asyncio.run_coroutine_threadsafe(q.put(item), loop)
-                fut.result(timeout=1.0)
-                return True
-            except Exception:
-                continue
-        return False
-
-    def _pump():
-        try:
-            for chunk in r.iter_content(64 * 1024):
-                if stop.is_set() or not _qput(chunk):
-                    return
-        except Exception as e:
-            _qput(e)
-        finally:
-            _qput(DONE)
-            try:
-                r.close()
-            except Exception:
-                pass
-
-    pump = loop.run_in_executor(None, _pump)
-
-    async def _chunks():
-        try:
-            while True:
-                item = await q.get()
-                if item is DONE:
-                    break
-                if isinstance(item, Exception):
-                    raise item
-                yield item
-        finally:
-            stop.set()
-            pump.cancel()
-
-    safe_tid = re.sub(r"[^A-Za-z0-9_-]", "_", task_id)[:80]
-    headers = {"Content-Disposition": f'inline; filename="{safe_tid}.mp4"'}
-    cl = r.headers.get("content-length")
-    if cl:
-        headers["Content-Length"] = cl
-    return StreamingResponse(_chunks(), media_type="video/mp4", headers=headers)
+    # Stream via CDP: fetch full body in the page (real fingerprint/cookies/IP),
+    # return as base64 -> decode -> stream to client. No curl_cffi needed.
+    pw, browser, page = await _get_cdp_page()
+    try:
+        result = await page.evaluate("""async (url) => {
+            const r = await fetch(url);
+            if (!r.ok) return { status: r.status, error: await r.text() };
+            const buf = await r.arrayBuffer();
+            const bytes = new Uint8Array(buf);
+            let binary = '';
+            for (let i = 0; i < bytes.length; i += 8192) {
+                binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+            }
+            return { status: r.status, b64: btoa(binary),
+                     content_type: r.headers.get('content-type'),
+                     content_length: buf.byteLength };
+        }""", f"/api/minimax-trial/video-generation/{task_id}/content?client_id={t['client_id']}&access_token={t['access_token']}")
+        if result.get("status") != 200:
+            raise HTTPException(result.get("status", 502),
+                                f"upstream content error: {result.get('error', '')[:200]}")
+        body = base64.b64decode(result["b64"])
+        safe_tid = re.sub(r"[^A-Za-z0-9_-]", "_", task_id)[:80]
+        headers = {
+            "Content-Disposition": f'inline; filename="{safe_tid}.mp4"',
+            "Content-Length": str(result.get("content_length", len(body))),
+        }
+        return StreamingResponse(
+            iter([body]), media_type="video/mp4", headers=headers)
+    finally:
+        await browser.close()
+        await pw.stop()
 
 
 def _prune_tasks() -> None:

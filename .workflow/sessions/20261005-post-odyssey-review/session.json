@@ -1,0 +1,34 @@
+{
+  "schema_version": "session/3.0",
+  "session_id": "20261005-post-odyssey-review",
+  "objective": "post-odyssey substantive review of final 489 LoC",
+  "definition_of_done": "4-dim audit on real file reads, findings recorded, fixes applied or classified",
+  "status": "open",
+  "orchestration_revision": 3,
+  "activity_revision": 3,
+  "chain": [
+    {
+      "step_id": "step-1-odyssey-review",
+      "command": "odyssey-review",
+      "args": [],
+      "status": "running",
+      "run_ids": [
+        "run-5f1434ee380c"
+      ],
+      "goal_ref": null,
+      "decision_ref": null,
+      "decision_refs": [],
+      "stage": null
+    }
+  ],
+  "decisions": [],
+  "active_run_ids": [
+    "run-5f1434ee380c"
+  ],
+  "artifacts_ref": "artifacts.json",
+  "evidence_ref": "evidence.json",
+  "created_at": "2026-10-05T06:37:37.802Z",
+  "updated_at": "2026-10-05T06:38:12.816Z",
+  "completed_at": null,
+  "archived_at": null
+}

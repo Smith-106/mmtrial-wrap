@@ -12,20 +12,16 @@
   ],
   "command_contract_hash": "sha256:e71b71c3b8da5ac933a735c46b17b4f5032dfa4024b9a2c5bff2e6ed1fa3e46e",
   "goal": null,
-  "status": "sealed",
-  "revision": 2,
+  "status": "running",
+  "revision": 1,
   "actor_id": "actor-niko",
   "input_refs": [],
-  "output_refs": [
-    "ART-a98864fa579ee2431221",
-    "ART-3fd79f523948512528e6",
-    "ART-9348b4949475c1caa181"
-  ],
-  "primary_artifact_id": "ART-3fd79f523948512528e6",
-  "verdict": "done",
-  "summary": "final review: 14-step odyssey complete",
+  "output_refs": [],
+  "primary_artifact_id": null,
+  "verdict": null,
+  "summary": null,
   "created_at": "2026-10-05T06:18:28.473Z",
   "started_at": "2026-10-05T06:18:28.476Z",
-  "ended_at": "2026-10-05T06:19:09.035Z",
-  "sealed_at": "2026-10-05T06:19:09.035Z"
+  "ended_at": null,
+  "sealed_at": null
 }

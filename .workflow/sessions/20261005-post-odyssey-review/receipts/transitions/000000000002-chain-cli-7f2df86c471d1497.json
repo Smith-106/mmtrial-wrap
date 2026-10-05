@@ -1,0 +1,32 @@
+{
+  "schema_version": "transition-receipt/2.0",
+  "transition_id": "chain-cli-7f2df86c471d1497",
+  "request_id": "cli-7f2df86c471d1497",
+  "session_id": "20261005-post-odyssey-review",
+  "activity_revision": 2,
+  "target_type": "orchestration",
+  "target_id": "20261005-post-odyssey-review",
+  "revision_before": 1,
+  "revision_after": 2,
+  "actor_id": "actor-niko",
+  "participant_id": "actor-niko",
+  "reason": "cli:chain insert",
+  "evidence_refs": [],
+  "recorded_at": "2026-10-05T06:38:03.733Z",
+  "result": {
+    "kind": "insert",
+    "chain": [
+      {
+        "step_id": "step-1-odyssey-review",
+        "command": "odyssey-review",
+        "args": [],
+        "status": "pending",
+        "run_ids": [],
+        "goal_ref": null,
+        "decision_ref": null,
+        "decision_refs": [],
+        "stage": null
+      }
+    ]
+  }
+}
