@@ -1,18 +1,11 @@
 ---
 verdict: ready
-summary: ""
+summary: "post-odyssey substantive review: CDP-attach refactor clean, all endpoints verified via real browser"
 constraints: []
-decisions: []
+decisions:
+  - text: "CDP attach replaces curl_cffi entirely — no cookie export, no fingerprint spoofing"
+    status: accepted
 concerns: []
 next: []
 details: {}
 ---
-## 摘要
-
-## 结论/Verdict
-
-## 讨论/复盘
-
-## 产物
-
-## 交接/Next
