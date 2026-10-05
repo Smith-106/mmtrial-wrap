@@ -1,0 +1,24 @@
+name: mmtrial-wrap
+services:
+  api:
+    build:
+      context: .
+      target: thin          # switch to 'full' for AUTO_CLEARANCE=1 self-refresh
+    image: mmtrial-wrap:latest
+    ports:
+      - "8080:8080"
+    environment:
+      # Required for the thin variant: paste a fresh cf_clearance from a real
+      # browser session on siftq.com (DevTools -> Application -> Cookies).
+      CF_CLEARANCE: ${CF_CLEARANCE:-}
+      # For the 'full' variant, AUTO_CLEARANCE=1 is baked into the image.
+      CF_COOKIE_FILE: /data/cf_clearance.txt
+      POLL_SECONDS: "7"
+      # Optional: send an X-Forwarded-For (e.g. for upstream quota-bucket tests).
+      # Leave empty to omit the header entirely.
+      MM_XFF: ${MM_XFF:-}
+    volumes:
+      - cf-cookie:/data
+    restart: unless-stopped
+volumes:
+  cf-cookie:

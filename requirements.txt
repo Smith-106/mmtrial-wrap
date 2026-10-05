@@ -1,0 +1,4 @@
+fastapi
+uvicorn[standard]
+python-multipart
+curl_cffi==0.16.3
