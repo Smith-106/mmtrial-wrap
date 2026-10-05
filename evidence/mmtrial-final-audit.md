@@ -7,7 +7,7 @@
 - `GET /api/minimax-trial/usage` with `X-MiniMax-Trial-Client: mmtrial_37c012af-d651-4927-b25b-2e80152b4f57` → 200
   `{"enabled":true,"authenticated":false,"limit":2,"used":2,"remaining":0,"bonus_remaining":0,"anonymous_daily_limit":2,"authenticated_daily_limit":2,"max_concurrent":10}`
   - Same body with a fresh client UUID → identical (quota is IP-keyed, not client-keyed). No XFF header sent.
-- `GET /api/minimax-trial/video-generation/2106702460338950144?access_token=988a2527-cd33-4663-a5f1-35b4affdf639` → 200
+- `GET /api/minimax-trial/video-generation/2106702460338950144?access_token=<REDACTED>` → 200
   `{"task_id":"2106702460338950144","status":"succeeded","active_count":…,"max_concurrent":10}`
 - `HEAD …/2106702460338950144/content?client_id=…&access_token=…` → 200 `video/mp4;charset=UTF-8`
   `Content-Length: 1135959`, `content-disposition: inline; filename=video-2106702468355604480.mp4`, `etag: "e5ed1b249ff5e243399c66483939f718"`
@@ -66,7 +66,7 @@ curl -sS -X POST https://siftq.com/api/minimax-trial/video-generation \
 
 ## 7. R3 full-log re-execution (advisory close-out, 2026-10-04 21:01:52 UTC)
 - Literal goal command executed with `bash -x ... 2>&1 | tee`, untruncated:
-  `GET https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=988a2527-cd33-4663-a5f1-35b4affdf639`
+  `GET https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=<REDACTED>`
 - Evidence files (`~/.pi/browser-artifacts/mmtrial-evidence/`):
   - `r3-download.sh` (1005 B, exact literal command), `r3-run.log` (4948 B, full bash -x trace), `r3-content.hdr` (1729 B), `r3-download.mp4`.
 - Response: `HTTP/1.1 200 OK`, `Content-Type: video/mp4;charset=UTF-8`, `Content-Length: 1135959`, `content-disposition: inline; filename=video-2106702468355604480.mp4`, `etag: "e5ed1b249ff5e243399c66483939f718"`.

@@ -6,10 +6,10 @@
 + TID=2106702460338950144
 + CID=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57
 + TOK=988a2527-cd33-4663-a5f1-35b4affdf639
-+ URL='https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=988a2527-cd33-4663-a5f1-35b4affdf639'
-+ echo 'URL=https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=988a2527-cd33-4663-a5f1-35b4affdf639'
-URL=https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=988a2527-cd33-4663-a5f1-35b4affdf639
-+ curl -sS -v -o /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-download.mp4 -D /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-content.hdr 'https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=988a2527-cd33-4663-a5f1-35b4affdf639'
++ URL='https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=<REDACTED>'
++ echo 'URL=https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=<REDACTED>'
+URL=https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=<REDACTED>
++ curl -sS -v -o /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-download.mp4 -D /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-content.hdr 'https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=<REDACTED>'
 * Host siftq.com:443 was resolved.
 * IPv6: (none)
 * IPv4: 198.18.1.128
@@ -19,7 +19,7 @@ URL=https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/con
 * ALPN: server accepted http/1.1
 * Established connection to siftq.com (198.18.1.128 port 443) from 198.18.0.1 port 6095 
 * using HTTP/1.x
-> GET /api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=988a2527-cd33-4663-a5f1-35b4affdf639 HTTP/1.1
+> GET /api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=<REDACTED> HTTP/1.1
 
 > Host: siftq.com
 
