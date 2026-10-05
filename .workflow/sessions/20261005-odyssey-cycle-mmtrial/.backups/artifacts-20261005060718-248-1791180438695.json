@@ -1,6 +1,6 @@
 {
   "schema_version": "artifacts/1.0",
-  "revision": 4,
+  "revision": 3,
   "artifacts": {
     "ART-ccaca2789390bf5393b8": {
       "kind": "evidence",
@@ -24,7 +24,7 @@
       "schema_version": "audit-result/1.0",
       "content_hash": "dcdbc9165ff4e0758d6641091f8b9b7fd521adaabdbde23ce5f7c571a7894449",
       "size": 10671,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": null
     },
@@ -37,7 +37,7 @@
       "schema_version": "improvement-metrics/1.0",
       "content_hash": "7523dac92822a70686fb0fb50b9ff41b4e4cf8f03108fd8c47909da37e989a57",
       "size": 5194,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": null
     },
@@ -144,50 +144,11 @@
       "status": "sealed",
       "derived_from": [],
       "replaces": null
-    },
-    "ART-adf4833ff72c25ef8772": {
-      "kind": "evidence",
-      "role": "evidence",
-      "producer_run_id": "run-9b1f2e9136d3",
-      "relative_path": "runs/run-9b1f2e9136d3/outputs/evidence.ndjson",
-      "media_type": "application/x-ndjson",
-      "schema_version": "evidence/1.0",
-      "content_hash": "2d4524b57461458760ad96e068a76f2da4bb50be9316f930ef31dcb8a0c7f180",
-      "size": 985,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": null
-    },
-    "ART-34963ca0e0c941eae23c": {
-      "kind": "audit-result",
-      "role": "primary",
-      "producer_run_id": "run-9b1f2e9136d3",
-      "relative_path": "runs/run-9b1f2e9136d3/outputs/session.json",
-      "media_type": "application/json",
-      "schema_version": "audit-result/1.0",
-      "content_hash": "86c260770051ca3fc2401907c402a5ee450ccd547c95a544a23e43b7f6101caf",
-      "size": 3979,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-2aa8d19b19a4d7868432"
-    },
-    "ART-085bfa84efc3d083e88e": {
-      "kind": "improvement-metrics",
-      "role": "attachment",
-      "producer_run_id": "run-9b1f2e9136d3",
-      "relative_path": "runs/run-9b1f2e9136d3/outputs/understanding.md",
-      "media_type": "text/markdown",
-      "schema_version": "improvement-metrics/1.0",
-      "content_hash": "acd913d62ff68165051a0f39e2a2997ae2dbf861ad4eb4042523a637ef07d42d",
-      "size": 523,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-69a3102dfe6372863a85"
     }
   },
   "aliases": {
-    "latest-audit": "ART-34963ca0e0c941eae23c",
-    "improvement-report": "ART-085bfa84efc3d083e88e",
+    "latest-audit": "ART-2aa8d19b19a4d7868432",
+    "improvement-report": "ART-69a3102dfe6372863a85",
     "review-evidence": "ART-4944e748dc808fe66aab",
     "review-explore": "ART-1584c9ebd682121af2da",
     "review-session": "ART-fef6e345ca913b8abe00",

@@ -1,0 +1,6 @@
+{
+  "call_chains": "unchanged (app topology frozen since improve-1)",
+  "recent_changes": "debug pump fix + import hoist",
+  "error_gaps": "none new",
+  "similar_patterns": "n/a"
+}

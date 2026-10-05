@@ -12,20 +12,16 @@
   ],
   "command_contract_hash": "sha256:2e5fb8ad38e7cfaef1397d23bb3972a8ded813cc5e425ac83d7bd99990f684ff",
   "goal": null,
-  "status": "sealed",
-  "revision": 2,
+  "status": "running",
+  "revision": 1,
   "actor_id": "actor-niko",
   "input_refs": [],
-  "output_refs": [
-    "ART-adf4833ff72c25ef8772",
-    "ART-34963ca0e0c941eae23c",
-    "ART-085bfa84efc3d083e88e"
-  ],
-  "primary_artifact_id": "ART-34963ca0e0c941eae23c",
-  "verdict": "done",
-  "summary": "improve pass2: 2 findings resolved",
+  "output_refs": [],
+  "primary_artifact_id": null,
+  "verdict": null,
+  "summary": null,
   "created_at": "2026-10-05T06:05:24.193Z",
   "started_at": "2026-10-05T06:05:24.254Z",
-  "ended_at": "2026-10-05T06:07:18.452Z",
-  "sealed_at": "2026-10-05T06:07:18.452Z"
+  "ended_at": null,
+  "sealed_at": null
 }
