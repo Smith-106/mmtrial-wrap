@@ -1,0 +1,3 @@
+{"ts": "2026-10-05T06:12:55Z", "phase": "diagnosis", "type": "root_cause", "source": "odyssey-debug", "content": "get() unlocked while ensure() locked — reader races refresh window", "note": "", "result": "confirmed"}
+{"ts": "2026-10-05T06:12:55Z", "phase": "fix", "type": "change", "source": "odyssey-debug", "content": "unify lock scope — ensure() returns cookie under lock; hot path uses ensure() result directly", "note": "", "finding_ref": "D1", "risk": "low"}
+{"ts": "2026-10-05T06:12:55Z", "phase": "discovery", "type": "triage", "source": "odyssey-debug", "content": "single finding resolved", "note": ""}

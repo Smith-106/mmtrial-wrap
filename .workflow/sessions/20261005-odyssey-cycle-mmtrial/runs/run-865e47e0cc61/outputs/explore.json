@@ -1,0 +1,5 @@
+{
+  "symptom": "CF 502 under concurrent create",
+  "call_chain": "create_generation -> CookieProvider.ensure(force?) -> _refresh_headless (lock) / CookieProvider.get (no lock)",
+  "evidence_loc": "app/main.py L83-149"
+}

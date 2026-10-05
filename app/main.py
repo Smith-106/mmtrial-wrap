@@ -92,6 +92,17 @@ class CookieProvider:
     def get(self) -> str:
         return self._value
 
+    async def get_fresh(self) -> str:
+        """Single-lock-scope read: waits for in-flight refresh, never returns '' mid-refresh."""
+        async with self._lock:
+            if self.refreshing:
+                # wait briefly for in-flight refresh to land
+                for _ in range(40):
+                    await asyncio.sleep(0.5)
+                    if not self.refreshing or self._value:
+                        break
+            return self._value
+
     def invalidate(self) -> None:
         self._value = ""
 
@@ -146,7 +157,8 @@ class CookieProvider:
 COOKIES = CookieProvider()
 
 
-def _base_headers(client_id: str, idem: str, with_cookie: bool = True) -> dict:
+def _base_headers(client_id: str, idem: str, with_cookie: bool = True,
+                  cookie_override: Optional[str] = None) -> dict:
     h = {
         "Accept": "application/json",
         "Origin": BASE,
@@ -155,7 +167,7 @@ def _base_headers(client_id: str, idem: str, with_cookie: bool = True) -> dict:
         "Idempotency-Key": idem,
     }
     if with_cookie:
-        c = COOKIES.get()
+        c = cookie_override if cookie_override is not None else COOKIES.get()
         if c:
             h["Cookie"] = "cf_clearance=" + c
     # F4: only forward a well-formed IP/CSV list, never raw env text.
@@ -182,8 +194,10 @@ def _gen_multipart(client_id: str, image: bytes, image_name: str, prompt: str,
     return mp
 
 
-def _post_generation(client_id: str, idem: str, mp: CurlMime) -> cr.Response:
-    return session().post(TRIAL_URL + "/video-generation", headers=_base_headers(client_id, idem),
+def _post_generation(client_id: str, idem: str, mp: CurlMime,
+                     cookie_override: Optional[str] = None) -> cr.Response:
+    return session().post(TRIAL_URL + "/video-generation",
+                          headers=_base_headers(client_id, idem, cookie_override=cookie_override),
                           multipart=mp, timeout=60)
 
 
@@ -207,14 +221,17 @@ async def _get_with_retry(url: str, headers: dict, timeout: int = 20,
 async def _submit(client_id: str, idem: str, image: bytes, image_name: str,
                   prompt: str, ratio: str, duration: str, visitor_id: str) -> dict:
     mp = _gen_multipart(client_id, image, image_name, prompt, ratio, duration, visitor_id)
-    r = await asyncio.to_thread(_post_generation, client_id, idem, mp)
+    cookie = await COOKIES.get_fresh()
+    r = await asyncio.to_thread(_post_generation, client_id, idem, mp,
+                                cookie_override=cookie)
     if r.status_code in (403, 502):
         # cf_clearance may be stale/invalid -> force headless refresh once, retry.
         log.warning("submit got %s, refreshing cf_clearance", r.status_code)
         COOKIES.invalidate()
-        await COOKIES.ensure(force=True)
-        if COOKIES.get():
-            r = await asyncio.to_thread(_post_generation, client_id, idem, mp)
+        fresh = await COOKIES.ensure(force=True)
+        if fresh:
+            r = await asyncio.to_thread(_post_generation, client_id, idem, mp,
+                                        cookie_override=fresh)
     try:
         data = r.json()
     except Exception:

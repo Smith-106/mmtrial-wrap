@@ -1,6 +1,6 @@
 {
   "schema_version": "artifacts/1.0",
-  "revision": 5,
+  "revision": 4,
   "artifacts": {
     "ART-ccaca2789390bf5393b8": {
       "kind": "evidence",
@@ -50,7 +50,7 @@
       "schema_version": "evidence/1.0",
       "content_hash": "54547f307c67ea466892984c2a0483b7e4abebdbf8e3ea9507ba6afd3ec44b25",
       "size": 1774,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": null
     },
@@ -63,7 +63,7 @@
       "schema_version": "exploration/1.0",
       "content_hash": "0f06d3e807e58720a80af0f95d7903f3cfdf3eaa41bec779ecee453099a14d91",
       "size": 600,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": null
     },
@@ -76,7 +76,7 @@
       "schema_version": "session/1.0",
       "content_hash": "2e327b3cc2df78729086f15740db96a59118f1dd174c34814080065802f6595a",
       "size": 4247,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": null
     },
@@ -89,7 +89,7 @@
       "schema_version": "review-report/1.0",
       "content_hash": "92104463d22879f2c1fc67e26e5035a4281057d69cadc5214fb6af3c3ae99578",
       "size": 1843,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": null
     },
@@ -183,67 +183,15 @@
       "status": "sealed",
       "derived_from": [],
       "replaces": "ART-69a3102dfe6372863a85"
-    },
-    "ART-5ad28cf78b6563f07a41": {
-      "kind": "evidence",
-      "role": "evidence",
-      "producer_run_id": "run-2a46c5761be8",
-      "relative_path": "runs/run-2a46c5761be8/outputs/evidence.ndjson",
-      "media_type": "application/x-ndjson",
-      "schema_version": "evidence/1.0",
-      "content_hash": "5b87d890cb22156b59a06080d4fcf5be45a55afa3f524ed73cdb5ecc704b7e71",
-      "size": 464,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-4944e748dc808fe66aab"
-    },
-    "ART-c519343c718de4c08489": {
-      "kind": "exploration",
-      "role": "evidence",
-      "producer_run_id": "run-2a46c5761be8",
-      "relative_path": "runs/run-2a46c5761be8/outputs/explore.json",
-      "media_type": "application/json",
-      "schema_version": "exploration/1.0",
-      "content_hash": "99818c8e5e5a31f945b193d8ccf9d4636cc9cefb3e32d57d04cd405f00d72ca5",
-      "size": 185,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-1584c9ebd682121af2da"
-    },
-    "ART-948d7fd41622e8fe2e57": {
-      "kind": "session",
-      "role": "primary",
-      "producer_run_id": "run-2a46c5761be8",
-      "relative_path": "runs/run-2a46c5761be8/outputs/session.json",
-      "media_type": "application/json",
-      "schema_version": "session/1.0",
-      "content_hash": "84f6e015dfd3cc768832b13a41621919609735dc2aa8e08df14c1cb5649eb7e9",
-      "size": 2362,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-fef6e345ca913b8abe00"
-    },
-    "ART-5a3103e01089fe4af6e5": {
-      "kind": "review-report",
-      "role": "primary",
-      "producer_run_id": "run-2a46c5761be8",
-      "relative_path": "runs/run-2a46c5761be8/outputs/understanding.md",
-      "media_type": "text/markdown",
-      "schema_version": "review-report/1.0",
-      "content_hash": "61b237e53dc75957ce45ec6822c50b84d7f918bfe603bb5100aacb11c027d807",
-      "size": 906,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-cdd95823b1c14a695a54"
     }
   },
   "aliases": {
     "latest-audit": "ART-34963ca0e0c941eae23c",
     "improvement-report": "ART-085bfa84efc3d083e88e",
-    "review-evidence": "ART-5ad28cf78b6563f07a41",
-    "review-explore": "ART-c519343c718de4c08489",
-    "review-session": "ART-948d7fd41622e8fe2e57",
-    "review-understanding": "ART-5a3103e01089fe4af6e5",
+    "review-evidence": "ART-4944e748dc808fe66aab",
+    "review-explore": "ART-1584c9ebd682121af2da",
+    "review-session": "ART-fef6e345ca913b8abe00",
+    "review-understanding": "ART-cdd95823b1c14a695a54",
     "debug-evidence": "ART-7b4b98cd7b8861b73514",
     "debug-explore": "ART-b38850ea0d47384e516f",
     "debug-session": "ART-662809ed4997bac9d32e",
