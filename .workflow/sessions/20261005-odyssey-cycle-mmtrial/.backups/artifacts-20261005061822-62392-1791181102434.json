@@ -1,6 +1,6 @@
 {
   "schema_version": "artifacts/1.0",
-  "revision": 13,
+  "revision": 12,
   "artifacts": {
     "ART-ccaca2789390bf5393b8": {
       "kind": "evidence",
@@ -586,45 +586,6 @@
       "status": "sealed",
       "derived_from": [],
       "replaces": "ART-31f2d4405dc8c6d99a1a"
-    },
-    "ART-733025da0d585b29c244": {
-      "kind": "evidence",
-      "role": "evidence",
-      "producer_run_id": "run-2bd72a8f80b4",
-      "relative_path": "runs/run-2bd72a8f80b4/outputs/evidence.ndjson",
-      "media_type": "application/x-ndjson",
-      "schema_version": "evidence/1.0",
-      "content_hash": "3296e7fa03e2b2fc5a1840b2ab9be921c3f9116dfbdc8dcc0ed561421af4393a",
-      "size": 345,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": null
-    },
-    "ART-5124cb8be3cc05a4ad41": {
-      "kind": "ui-audit",
-      "role": "primary",
-      "producer_run_id": "run-2bd72a8f80b4",
-      "relative_path": "runs/run-2bd72a8f80b4/outputs/session.json",
-      "media_type": "application/json",
-      "schema_version": "ui-audit/1.0",
-      "content_hash": "2c7795d29cb28529f7441e588916aa9b19e7225e98ce37c3f00f4d9769962bef",
-      "size": 2426,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": null
-    },
-    "ART-04fa6204504190f271d4": {
-      "kind": "ui-audit-report",
-      "role": "attachment",
-      "producer_run_id": "run-2bd72a8f80b4",
-      "relative_path": "runs/run-2bd72a8f80b4/outputs/understanding.md",
-      "media_type": "text/markdown",
-      "schema_version": "ui-audit-report/1.0",
-      "content_hash": "01063db0244d0a6d8d6e9715b9c7a71d1982fc5d4cff87fadfa2214eca961c14",
-      "size": 429,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": null
     }
   },
   "aliases": {
@@ -644,8 +605,6 @@
     "defensive-understanding": "ART-f7f4c0e4223f954efdf0",
     "security-evidence": "ART-65d82b71a3096db575e1",
     "security-session": "ART-55ba4ad1c38d9e73a3ec",
-    "security-understanding": "ART-e4261a1e1fb26ba9bfc8",
-    "ui-audit-session": "ART-5124cb8be3cc05a4ad41",
-    "ui-understanding": "ART-04fa6204504190f271d4"
+    "security-understanding": "ART-e4261a1e1fb26ba9bfc8"
   }
 }
