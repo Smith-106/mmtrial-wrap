@@ -8,7 +8,7 @@
     "performance",
     "architecture"
   ],
-  "current_state": "S_FIX",
+  "current_state": "S_RECORD",
   "flags": {
     "skip_fix": false,
     "skip_generalize": false,
@@ -33,32 +33,32 @@
       "id": "G3",
       "goal": "Zero remaining",
       "phase": "S_CONFIRM",
-      "status": "pending",
-      "completion_confirmed": false
+      "status": "done",
+      "completion_confirmed": true
     },
     {
       "id": "G4",
       "goal": "Pattern generalized",
       "phase": "S_GENERALIZE",
-      "status": "pending",
-      "completion_confirmed": false
+      "status": "done",
+      "completion_confirmed": true
     },
     {
       "id": "G5",
       "goal": "Discoveries triaged",
       "phase": "S_DISCOVER",
-      "status": "pending",
-      "completion_confirmed": false
+      "status": "done",
+      "completion_confirmed": true
     },
     {
       "id": "G6",
       "goal": "Learnings persisted",
       "phase": "S_RECORD",
-      "status": "pending",
-      "completion_confirmed": false
+      "status": "done",
+      "completion_confirmed": true
     }
   ],
-  "phase_goals_all_done": false,
+  "phase_goals_all_done": true,
   "review_result": {
     "findings": [
       {
@@ -110,9 +110,32 @@
     },
     "remaining_actionable": 0
   },
-  "patterns": [],
-  "confirmation": null,
-  "generalization_stats": null,
+  "patterns": [
+    {
+      "id": "PR1",
+      "layer": "syntax",
+      "signature": "timing-safe compare for secrets",
+      "desc": "compare_digest over == for bearer auth",
+      "risk": "timing leak",
+      "confidence": "high"
+    }
+  ],
+  "confirmation": {
+    "verdict": "confirmed",
+    "evidence": "live curl: bad JSON -> HTTP 400 body 'must be JSON'; healthz+routes OK on new code"
+  },
+  "generalization_stats": {
+    "patterns_extracted": 1,
+    "total_hits": 1,
+    "cross_layer_confirmed": 0,
+    "regression_risks": 0,
+    "by_layer": {
+      "syntax": 1,
+      "semantic": 0,
+      "structural": 0
+    },
+    "deepening_triggered": false
+  },
   "cross_phase_loops": 0,
   "max_loops": 5,
   "self_iteration_log": [],
@@ -129,5 +152,5 @@
   },
   "directions_tried": [],
   "created_at": "2026-10-05T05:13:00Z",
-  "updated_at": "2026-10-05T05:16:00Z"
+  "updated_at": "2026-10-05T05:19:00Z"
 }

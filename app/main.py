@@ -12,7 +12,7 @@ that so downstream clients can use a clean, official-looking API:
     GET  /v1/usage                -> quota snapshot
     GET  /healthz
 """
-import asyncio, logging, os, re, time, uuid, json
+import asyncio, hmac, logging, os, re, time, uuid, json
 from typing import Optional
 
 from fastapi import FastAPI, Request, UploadFile, File, Form, HTTPException
@@ -50,7 +50,7 @@ def _check_api_key(request: Request) -> None:
     if not API_KEY:
         return
     auth = request.headers.get("authorization", "")
-    if auth != f"Bearer {API_KEY}":
+    if not hmac.compare_digest(auth, f"Bearer {API_KEY}"):
         raise HTTPException(401, "invalid or missing API key")
 
 
@@ -298,7 +298,12 @@ async def register_task(request: Request):
     """Seed the registry with an externally-created task so /v1/tasks and
     /v1/tasks/{id}/content work across restarts / other clients."""
     _check_api_key(request)
-    body = await request.json()
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(400, "body must be JSON")
+    if not isinstance(body, dict):
+        raise HTTPException(400, "body must be a JSON object")
     tid = str(body.get("task_id") or "")
     tok = body.get("access_token") or ""
     cid = body.get("client_id") or ""

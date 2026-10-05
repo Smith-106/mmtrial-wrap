@@ -2,3 +2,7 @@
 {"ts": "2026-10-05T06:00:32Z", "phase": "review", "type": "finding", "source": "odyssey-review", "content": "HTTPException(499) for client disconnect is a non-standard s", "note": "", "dimension": "correctness", "severity": "low", "finding_ref": "R2"}
 {"ts": "2026-10-05T06:00:32Z", "phase": "review", "type": "finding", "source": "odyssey-review", "content": "authorization check compares in plaintext — timing-attack th", "note": "", "dimension": "security", "severity": "low", "finding_ref": "R3"}
 {"ts": "2026-10-05T06:00:32Z", "phase": "review", "type": "finding", "source": "odyssey-review", "content": "request.json() may raise JSONDecodeError -> 500 instead of 4", "note": "", "dimension": "correctness", "severity": "low", "finding_ref": "R4"}
+{"ts": "2026-10-05T06:01:55Z", "phase": "fix", "type": "change", "source": "odyssey-review", "content": "hmac.compare_digest for bearer auth compare", "note": "", "finding_ref": "R3", "risk": "low"}
+{"ts": "2026-10-05T06:01:55Z", "phase": "fix", "type": "change", "source": "odyssey-review", "content": "register_task wraps request.json() -> 400 on malformed; non-dict body -> 400", "note": "", "finding_ref": "R4", "risk": "low"}
+{"ts": "2026-10-05T06:01:55Z", "phase": "discovery", "type": "triage", "source": "odyssey-review", "content": "no new actionable findings; R1/R2 accepted limitations", "note": ""}
+{"ts": "2026-10-05T06:01:55Z", "phase": "record", "type": "learn", "source": "odyssey-review", "content": "learnings persisted §8", "note": ""}
