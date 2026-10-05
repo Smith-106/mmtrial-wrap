@@ -1,0 +1,49 @@
+{
+  "schema_version": "artifacts/1.0",
+  "revision": 1,
+  "artifacts": {
+    "ART-ccaca2789390bf5393b8": {
+      "kind": "evidence",
+      "role": "evidence",
+      "producer_run_id": "run-8ecde042c480",
+      "relative_path": "runs/run-8ecde042c480/outputs/evidence.ndjson",
+      "media_type": "application/x-ndjson",
+      "schema_version": "evidence/1.0",
+      "content_hash": "74b1009b2e74f0f521bacc3db1f72a2abf7a4a16f0f5f1030ec37c657de7bdef",
+      "size": 9999,
+      "status": "sealed",
+      "derived_from": [],
+      "replaces": null
+    },
+    "ART-2aa8d19b19a4d7868432": {
+      "kind": "audit-result",
+      "role": "primary",
+      "producer_run_id": "run-8ecde042c480",
+      "relative_path": "runs/run-8ecde042c480/outputs/session.json",
+      "media_type": "application/json",
+      "schema_version": "audit-result/1.0",
+      "content_hash": "dcdbc9165ff4e0758d6641091f8b9b7fd521adaabdbde23ce5f7c571a7894449",
+      "size": 10671,
+      "status": "sealed",
+      "derived_from": [],
+      "replaces": null
+    },
+    "ART-69a3102dfe6372863a85": {
+      "kind": "improvement-metrics",
+      "role": "attachment",
+      "producer_run_id": "run-8ecde042c480",
+      "relative_path": "runs/run-8ecde042c480/outputs/understanding.md",
+      "media_type": "text/markdown",
+      "schema_version": "improvement-metrics/1.0",
+      "content_hash": "7523dac92822a70686fb0fb50b9ff41b4e4cf8f03108fd8c47909da37e989a57",
+      "size": 5194,
+      "status": "sealed",
+      "derived_from": [],
+      "replaces": null
+    }
+  },
+  "aliases": {
+    "latest-audit": "ART-2aa8d19b19a4d7868432",
+    "improvement-report": "ART-69a3102dfe6372863a85"
+  }
+}

@@ -4,8 +4,8 @@
   "objective": "odyssey cycle improve→review→debug→improve→review→debug→defensive→debug→review→security→debug→review→ui→review on mmtrial-wrap",
   "definition_of_done": "all 14 odyssey steps complete with evidence",
   "status": "open",
-  "orchestration_revision": 9,
-  "activity_revision": 9,
+  "orchestration_revision": 18,
+  "activity_revision": 18,
   "chain": [
     {
       "step_id": "step-1-odyssey-improve",
@@ -13,8 +13,10 @@
       "args": [
         "mmtrial-wrap (improve pass 1)"
       ],
-      "status": "pending",
-      "run_ids": [],
+      "status": "completed",
+      "run_ids": [
+        "run-8ecde042c480"
+      ],
       "goal_ref": null,
       "decision_ref": null,
       "decision_refs": [],
@@ -26,8 +28,10 @@
       "args": [
         "mmtrial-wrap (review pass 2)"
       ],
-      "status": "pending",
-      "run_ids": [],
+      "status": "running",
+      "run_ids": [
+        "run-cbbda4b4dd71"
+      ],
       "goal_ref": null,
       "decision_ref": null,
       "decision_refs": [],
@@ -110,14 +114,94 @@
       "decision_ref": null,
       "decision_refs": [],
       "stage": null
+    },
+    {
+      "step_id": "step-9-odyssey-review",
+      "command": "odyssey-review",
+      "args": [
+        "mmtrial-wrap (review pass 9)"
+      ],
+      "status": "pending",
+      "run_ids": [],
+      "goal_ref": null,
+      "decision_ref": null,
+      "decision_refs": [],
+      "stage": null
+    },
+    {
+      "step_id": "step-10-odyssey-security",
+      "command": "odyssey-security",
+      "args": [
+        "mmtrial-wrap (security pass 10)"
+      ],
+      "status": "pending",
+      "run_ids": [],
+      "goal_ref": null,
+      "decision_ref": null,
+      "decision_refs": [],
+      "stage": null
+    },
+    {
+      "step_id": "step-11-odyssey-debug",
+      "command": "odyssey-debug",
+      "args": [
+        "mmtrial-wrap (debug pass 11)"
+      ],
+      "status": "pending",
+      "run_ids": [],
+      "goal_ref": null,
+      "decision_ref": null,
+      "decision_refs": [],
+      "stage": null
+    },
+    {
+      "step_id": "step-12-odyssey-review",
+      "command": "odyssey-review",
+      "args": [
+        "mmtrial-wrap (review pass 12)"
+      ],
+      "status": "pending",
+      "run_ids": [],
+      "goal_ref": null,
+      "decision_ref": null,
+      "decision_refs": [],
+      "stage": null
+    },
+    {
+      "step_id": "step-13-odyssey-ui",
+      "command": "odyssey-ui",
+      "args": [
+        "mmtrial-wrap (ui pass 13)"
+      ],
+      "status": "pending",
+      "run_ids": [],
+      "goal_ref": null,
+      "decision_ref": null,
+      "decision_refs": [],
+      "stage": null
+    },
+    {
+      "step_id": "step-14-odyssey-review",
+      "command": "odyssey-review",
+      "args": [
+        "mmtrial-wrap (review pass 14)"
+      ],
+      "status": "pending",
+      "run_ids": [],
+      "goal_ref": null,
+      "decision_ref": null,
+      "decision_refs": [],
+      "stage": null
     }
   ],
   "decisions": [],
-  "active_run_ids": [],
+  "active_run_ids": [
+    "run-cbbda4b4dd71"
+  ],
   "artifacts_ref": "artifacts.json",
   "evidence_ref": "evidence.json",
   "created_at": "2026-10-05T04:52:45.720Z",
-  "updated_at": "2026-10-05T04:53:01.237Z",
+  "updated_at": "2026-10-05T05:59:04.433Z",
   "completed_at": null,
   "archived_at": null
 }

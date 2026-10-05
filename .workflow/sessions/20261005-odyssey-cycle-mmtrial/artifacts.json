@@ -1,6 +1,6 @@
 {
   "schema_version": "artifacts/1.0",
-  "revision": 1,
+  "revision": 2,
   "artifacts": {
     "ART-ccaca2789390bf5393b8": {
       "kind": "evidence",
@@ -40,10 +40,66 @@
       "status": "sealed",
       "derived_from": [],
       "replaces": null
+    },
+    "ART-4944e748dc808fe66aab": {
+      "kind": "evidence",
+      "role": "evidence",
+      "producer_run_id": "run-cbbda4b4dd71",
+      "relative_path": "runs/run-cbbda4b4dd71/outputs/evidence.ndjson",
+      "media_type": "application/x-ndjson",
+      "schema_version": "evidence/1.0",
+      "content_hash": "54547f307c67ea466892984c2a0483b7e4abebdbf8e3ea9507ba6afd3ec44b25",
+      "size": 1774,
+      "status": "sealed",
+      "derived_from": [],
+      "replaces": null
+    },
+    "ART-1584c9ebd682121af2da": {
+      "kind": "exploration",
+      "role": "evidence",
+      "producer_run_id": "run-cbbda4b4dd71",
+      "relative_path": "runs/run-cbbda4b4dd71/outputs/explore.json",
+      "media_type": "application/json",
+      "schema_version": "exploration/1.0",
+      "content_hash": "0f06d3e807e58720a80af0f95d7903f3cfdf3eaa41bec779ecee453099a14d91",
+      "size": 600,
+      "status": "sealed",
+      "derived_from": [],
+      "replaces": null
+    },
+    "ART-fef6e345ca913b8abe00": {
+      "kind": "session",
+      "role": "primary",
+      "producer_run_id": "run-cbbda4b4dd71",
+      "relative_path": "runs/run-cbbda4b4dd71/outputs/session.json",
+      "media_type": "application/json",
+      "schema_version": "session/1.0",
+      "content_hash": "2e327b3cc2df78729086f15740db96a59118f1dd174c34814080065802f6595a",
+      "size": 4247,
+      "status": "sealed",
+      "derived_from": [],
+      "replaces": null
+    },
+    "ART-cdd95823b1c14a695a54": {
+      "kind": "review-report",
+      "role": "primary",
+      "producer_run_id": "run-cbbda4b4dd71",
+      "relative_path": "runs/run-cbbda4b4dd71/outputs/understanding.md",
+      "media_type": "text/markdown",
+      "schema_version": "review-report/1.0",
+      "content_hash": "92104463d22879f2c1fc67e26e5035a4281057d69cadc5214fb6af3c3ae99578",
+      "size": 1843,
+      "status": "sealed",
+      "derived_from": [],
+      "replaces": null
     }
   },
   "aliases": {
     "latest-audit": "ART-2aa8d19b19a4d7868432",
-    "improvement-report": "ART-69a3102dfe6372863a85"
+    "improvement-report": "ART-69a3102dfe6372863a85",
+    "review-evidence": "ART-4944e748dc808fe66aab",
+    "review-explore": "ART-1584c9ebd682121af2da",
+    "review-session": "ART-fef6e345ca913b8abe00",
+    "review-understanding": "ART-cdd95823b1c14a695a54"
   }
 }

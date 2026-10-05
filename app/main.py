@@ -387,9 +387,9 @@ async def task_content(task_id: str, stream: bool = False,
            f"?client_id={t['client_id']}&access_token={t['access_token']}")
     if not stream:
         return RedirectResponse(url)
-    # Chunked relay: issue the upstream GET in a thread pool and yield chunks
-    # through an asyncio queue so no MP4 is fully buffered server-side.
-    import concurrent.futures
+    # Chunked relay with a stop flag: upstream GET streams in a worker thread;
+    # a threading.Event lets the async side halt the pump immediately on
+    # client disconnect (no zombie threads, upstream socket closed).
     def _fetch():
         return session().get(url, headers={"Accept": "application/octet-stream"},
                              timeout=180, stream=True)
@@ -397,17 +397,38 @@ async def task_content(task_id: str, stream: bool = False,
     r = await loop.run_in_executor(None, _fetch)
     if r.status_code != 200:
         raise HTTPException(r.status_code, f"upstream content error: {r.text[:200]}")
+    import threading
+    stop = threading.Event()
     q: asyncio.Queue = asyncio.Queue(maxsize=8)
     DONE = object()
+
+    def _qput(item):
+        """Blocking put that still honours the stop flag."""
+        while not stop.is_set():
+            try:
+                fut = asyncio.run_coroutine_threadsafe(q.put(item), loop)
+                fut.result(timeout=1.0)
+                return True
+            except Exception:
+                continue
+        return False
+
     def _pump():
         try:
             for chunk in r.iter_content(64 * 1024):
-                asyncio.run_coroutine_threadsafe(q.put(chunk), loop)
+                if stop.is_set() or not _qput(chunk):
+                    return
         except Exception as e:
-            asyncio.run_coroutine_threadsafe(q.put(e), loop)
+            _qput(e)
         finally:
-            asyncio.run_coroutine_threadsafe(q.put(DONE), loop)
+            _qput(DONE)
+            try:
+                r.close()
+            except Exception:
+                pass
+
     pump = loop.run_in_executor(None, _pump)
+
     async def _chunks():
         try:
             while True:
@@ -418,7 +439,9 @@ async def task_content(task_id: str, stream: bool = False,
                     raise item
                 yield item
         finally:
+            stop.set()
             pump.cancel()
+
     headers = {"Content-Disposition": f'inline; filename="{task_id}.mp4"'}
     cl = r.headers.get("content-length")
     if cl:

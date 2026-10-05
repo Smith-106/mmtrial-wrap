@@ -1,0 +1,36 @@
+{
+  "schema_version": "knowledge-reconciliation/1.0",
+  "session_id": "20261005-odyssey-cycle-mmtrial",
+  "run_id": "run-cbbda4b4dd71",
+  "candidate_snapshot_hash": "ff64987520007c4b640e969dffd25851fc003377efca98520a2fe1b15505e8ad",
+  "corpus_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "matcher_revision": "semantic-delta/1.0",
+  "generated_at": "2026-10-05T06:02:05.474Z",
+  "retrieval": {
+    "mode": "lexical-kg",
+    "embedding_used": false,
+    "candidate_limit": 28,
+    "identity_documents": 0,
+    "semantic_documents": 0,
+    "relation_documents": 0
+  },
+  "counts": {
+    "candidates": 1,
+    "unique": 1,
+    "duplicates": 0,
+    "related": 0,
+    "conflicts": 0,
+    "review_required": 0,
+    "suppressed": 0
+  },
+  "candidates": [
+    {
+      "candidate_id": "KDC-30a6fb1bfb8af833",
+      "disposition": "unique",
+      "promotion_eligibility": "eligible",
+      "canonical_id": null,
+      "matches": [],
+      "resolution": null
+    }
+  ]
+}

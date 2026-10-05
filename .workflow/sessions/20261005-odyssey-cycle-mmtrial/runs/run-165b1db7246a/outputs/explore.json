@@ -1,0 +1,5 @@
+{
+  "symptom_scope": "content relay pump (task_content stream branch)",
+  "call_chain": "task_content -> _fetch (run_in_executor) -> _pump thread -> q.put per iter_content chunk",
+  "evidence_loc": "app/main.py L389-410"
+}
