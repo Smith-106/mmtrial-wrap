@@ -1,0 +1,6 @@
+{
+  "call_chains": "POST /v1/generations(:await) -> _create_generation_impl -> _submit -> _post_generation; GET /v1/tasks/{id} -> _get_status -> _get_with_retry; /content -> _resolve_task + _get_status + stream pump",
+  "recent_changes": "improve pass-1 (9 fixes): api-key gate, tasks lock+prune, true streaming pump, XFF validation, logging, GET retry, disconnect check",
+  "error_gaps": "_refresh_headless blanket except (intentional); pump thread failure surfaces via queue item; upstream non-JSON -> 502",
+  "similar_patterns": "run.sh/client-example.sh shell only \u2014 no shared python"
+}

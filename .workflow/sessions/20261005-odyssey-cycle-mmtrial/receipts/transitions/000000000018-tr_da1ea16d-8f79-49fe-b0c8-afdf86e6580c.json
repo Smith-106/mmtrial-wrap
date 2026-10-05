@@ -1,0 +1,73 @@
+{
+  "schema_version": "transition-receipt/2.0",
+  "transition_id": "tr_da1ea16d-8f79-49fe-b0c8-afdf86e6580c",
+  "request_id": "cli-96d4789163191e42",
+  "session_id": "20261005-odyssey-cycle-mmtrial",
+  "activity_revision": 18,
+  "target_type": "orchestration",
+  "target_id": "20261005-odyssey-cycle-mmtrial",
+  "revision_before": 17,
+  "revision_after": 18,
+  "actor_id": "actor-niko",
+  "participant_id": "actor-niko",
+  "reason": "cli:run next",
+  "evidence_refs": [],
+  "recorded_at": "2026-10-05T05:59:04.433Z",
+  "result": {
+    "run_id": "run-cbbda4b4dd71",
+    "run_dir": "C:\\Users\\niko\\mmtrial-wrap\\.workflow\\sessions\\20261005-odyssey-cycle-mmtrial\\runs\\run-cbbda4b4dd71",
+    "step_id": "step-2-odyssey-review",
+    "status": "running",
+    "revision": 1,
+    "task": {
+      "command": "odyssey-review",
+      "args": [
+        "mmtrial-wrap (review pass 2)"
+      ],
+      "goal": null,
+      "input_refs": []
+    },
+    "upstream": {},
+    "guidance": {
+      "schema_version": "guidance-snapshot/1.0",
+      "source_path": "../.maestro/prepare/odyssey-review.md",
+      "content_hash": "sha256:730125309494ffc9c498dfc2b3efa7e4865854b644a08c60c1e6f8c2d60fd9ea",
+      "resolved_prompt_hash": "sha256:730125309494ffc9c498dfc2b3efa7e4865854b644a08c60c1e6f8c2d60fd9ea",
+      "prepare_hash": "sha256:730125309494ffc9c498dfc2b3efa7e4865854b644a08c60c1e6f8c2d60fd9ea",
+      "workflow_hash": "sha256:1a77dde4fc6cb42f8277d46a26695cbd51231df22c8dbffa908c942070d57112",
+      "run_mode_hash": "sha256:103fca36388fca8067ce6caa88f0cfaa5596018dc9062dcc60277ea88b3cca68"
+    },
+    "goal_mode": {
+      "platform": "claude",
+      "instructions": "Goal 跟 Claude Code 原生 /goal 走。Maestro 不改 Goal 行为。\n1. 可提示用户复制 /goal 设定终止条件（非阻塞）：\n   /goal 完成以下子目标：\n   {逐条列出 decomposition.goals 中 status!=superseded 的 id: goal — 完成条件: done_when}\n2. 用户输入 /goal 后由 Claude Code 管理。LLM 不要重建 Goal。\n3. 用户未输入 /goal，不影响执行。\n4. 用户清除或关闭 /goal 后：不要再输出 /goal，不要重建。外观必须保持消失。"
+    },
+    "knowledge_context": {
+      "path": "C:\\Users\\niko\\mmtrial-wrap\\.workflow\\sessions\\20261005-odyssey-cycle-mmtrial\\runs\\run-cbbda4b4dd71\\knowledge-delta.json",
+      "revision": 0,
+      "candidate_count": 0
+    },
+    "brief": {
+      "command": "maestro run brief run-cbbda4b4dd71 --session 20261005-odyssey-cycle-mmtrial --json"
+    },
+    "next": {
+      "suggest_only": true,
+      "command": "maestro run complete run-cbbda4b4dd71 --session 20261005-odyssey-cycle-mmtrial --actor <actor-id> --expected-run-revision 1 --expected-orchestration-revision 18 --verdict done --advance --json",
+      "reason": "Run created - execute and complete it with run complete --advance"
+    },
+    "continuation": {
+      "operation": "complete",
+      "locator": {
+        "session_id": "20261005-odyssey-cycle-mmtrial",
+        "run_id": "run-cbbda4b4dd71"
+      },
+      "revision_requirements": {
+        "expected_orchestration_revision": 18,
+        "expected_run_revision": 1
+      },
+      "required_caller_fields": [
+        "actor"
+      ]
+    },
+    "run_already_created": true
+  }
+}

@@ -4,8 +4,8 @@
   "objective": "odyssey cycle improve→review→debug→improve→review→debug→defensive→debug→review→security→debug→review→ui→review on mmtrial-wrap",
   "definition_of_done": "all 14 odyssey steps complete with evidence",
   "status": "open",
-  "orchestration_revision": 18,
-  "activity_revision": 18,
+  "orchestration_revision": 16,
+  "activity_revision": 16,
   "chain": [
     {
       "step_id": "step-1-odyssey-improve",
@@ -13,7 +13,7 @@
       "args": [
         "mmtrial-wrap (improve pass 1)"
       ],
-      "status": "completed",
+      "status": "running",
       "run_ids": [
         "run-8ecde042c480"
       ],
@@ -28,10 +28,8 @@
       "args": [
         "mmtrial-wrap (review pass 2)"
       ],
-      "status": "running",
-      "run_ids": [
-        "run-cbbda4b4dd71"
-      ],
+      "status": "pending",
+      "run_ids": [],
       "goal_ref": null,
       "decision_ref": null,
       "decision_refs": [],
@@ -196,12 +194,12 @@
   ],
   "decisions": [],
   "active_run_ids": [
-    "run-cbbda4b4dd71"
+    "run-8ecde042c480"
   ],
   "artifacts_ref": "artifacts.json",
   "evidence_ref": "evidence.json",
   "created_at": "2026-10-05T04:52:45.720Z",
-  "updated_at": "2026-10-05T05:59:04.433Z",
+  "updated_at": "2026-10-05T04:53:35.375Z",
   "completed_at": null,
   "archived_at": null
 }

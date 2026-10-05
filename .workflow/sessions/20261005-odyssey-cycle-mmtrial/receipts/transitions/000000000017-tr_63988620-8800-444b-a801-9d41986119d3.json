@@ -1,0 +1,115 @@
+{
+  "schema_version": "transition-receipt/2.0",
+  "transition_id": "tr_63988620-8800-444b-a801-9d41986119d3",
+  "request_id": "cli-26f728cd2d29e4f7",
+  "session_id": "20261005-odyssey-cycle-mmtrial",
+  "activity_revision": 17,
+  "target_type": "orchestration",
+  "target_id": "20261005-odyssey-cycle-mmtrial",
+  "revision_before": 16,
+  "revision_after": 17,
+  "actor_id": "actor-niko",
+  "participant_id": "actor-niko",
+  "reason": "cli:run complete",
+  "evidence_refs": [],
+  "recorded_at": "2026-10-05T04:59:54.724Z",
+  "result": {
+    "operation": "run-complete-and-seal",
+    "run_id": "run-8ecde042c480",
+    "run_revision": 2,
+    "status": "sealed",
+    "orchestration_revision": 17,
+    "artifact_publication": {
+      "authority": "transition-receipt/2.0",
+      "artifact_registry_revision": 1,
+      "artifact_ids": [
+        "ART-ccaca2789390bf5393b8",
+        "ART-2aa8d19b19a4d7868432",
+        "ART-69a3102dfe6372863a85"
+      ],
+      "primary_artifact_id": "ART-2aa8d19b19a4d7868432",
+      "artifacts": {
+        "ART-ccaca2789390bf5393b8": {
+          "kind": "evidence",
+          "role": "evidence",
+          "producer_run_id": "run-8ecde042c480",
+          "relative_path": "runs/run-8ecde042c480/outputs/evidence.ndjson",
+          "media_type": "application/x-ndjson",
+          "schema_version": "evidence/1.0",
+          "content_hash": "74b1009b2e74f0f521bacc3db1f72a2abf7a4a16f0f5f1030ec37c657de7bdef",
+          "size": 9999,
+          "status": "sealed",
+          "derived_from": [],
+          "replaces": null
+        },
+        "ART-2aa8d19b19a4d7868432": {
+          "kind": "audit-result",
+          "role": "primary",
+          "producer_run_id": "run-8ecde042c480",
+          "relative_path": "runs/run-8ecde042c480/outputs/session.json",
+          "media_type": "application/json",
+          "schema_version": "audit-result/1.0",
+          "content_hash": "dcdbc9165ff4e0758d6641091f8b9b7fd521adaabdbde23ce5f7c571a7894449",
+          "size": 10671,
+          "status": "sealed",
+          "derived_from": [],
+          "replaces": null
+        },
+        "ART-69a3102dfe6372863a85": {
+          "kind": "improvement-metrics",
+          "role": "attachment",
+          "producer_run_id": "run-8ecde042c480",
+          "relative_path": "runs/run-8ecde042c480/outputs/understanding.md",
+          "media_type": "text/markdown",
+          "schema_version": "improvement-metrics/1.0",
+          "content_hash": "7523dac92822a70686fb0fb50b9ff41b4e4cf8f03108fd8c47909da37e989a57",
+          "size": 5194,
+          "status": "sealed",
+          "derived_from": [],
+          "replaces": null
+        }
+      },
+      "aliases": {
+        "latest-audit": "ART-2aa8d19b19a4d7868432",
+        "improvement-report": "ART-69a3102dfe6372863a85"
+      }
+    },
+    "output_warnings": [
+      "outputs/evidence.ndjson: missing _meta; inferred kind=evidence",
+      "outputs/session.json: missing _meta; inferred kind=audit-result",
+      "outputs/understanding.md: missing frontmatter kind; inferred kind=improvement-metrics"
+    ],
+    "next_step_id": "step-2-odyssey-review",
+    "next": {
+      "suggest_only": true,
+      "command": "maestro run next --session 20261005-odyssey-cycle-mmtrial --actor <actor-id> --expected-orchestration-revision 17 --json",
+      "reason": "Run sealed; explicit run next may allocate the next chain Run"
+    },
+    "continuation": {
+      "operation": "next",
+      "locator": {
+        "session_id": "20261005-odyssey-cycle-mmtrial",
+        "run_id": null
+      },
+      "revision_requirements": {
+        "expected_orchestration_revision": 17,
+        "expected_run_revision": null
+      },
+      "required_caller_fields": [
+        "actor"
+      ]
+    },
+    "knowledge_reconciliation": {
+      "schema_version": "knowledge-reconciliation-receipt/1.0",
+      "candidate_snapshot_hash": "29cf8db845563c9d408a4c761605e838092413123989e5083427dbb7fbb4a227",
+      "corpus_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "retrieval_mode": "lexical-kg",
+      "candidates": 2,
+      "duplicates": 0,
+      "conflicts": 0,
+      "review_required": 0,
+      "suppressed": 0,
+      "review_command": "maestro knowledge review 20261005-odyssey-cycle-mmtrial"
+    }
+  }
+}
