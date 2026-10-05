@@ -12,7 +12,7 @@ that so downstream clients can use a clean, official-looking API:
     GET  /v1/usage                -> quota snapshot
     GET  /healthz
 """
-import asyncio, hmac, logging, os, re, time, uuid, json
+import asyncio, concurrent.futures, hmac, logging, os, re, threading, time, uuid, json
 from typing import Optional
 
 from fastapi import FastAPI, Request, UploadFile, File, Form, HTTPException
@@ -397,7 +397,6 @@ async def task_content(task_id: str, stream: bool = False,
     r = await loop.run_in_executor(None, _fetch)
     if r.status_code != 200:
         raise HTTPException(r.status_code, f"upstream content error: {r.text[:200]}")
-    import threading
     stop = threading.Event()
     q: asyncio.Queue = asyncio.Queue(maxsize=8)
     DONE = object()

@@ -1,0 +1,4 @@
+{"ts": "2026-10-05T06:07:17Z", "phase": "audit", "type": "finding", "source": "odyssey-improve", "content": "`import threading`/`concurrent.futures` inside handler scope — move to module to", "note": "", "dimension": "maintainability", "severity": "low", "finding_ref": "I1"}
+{"ts": "2026-10-05T06:07:17Z", "phase": "audit", "type": "finding", "source": "odyssey-improve", "content": "`_qput` spin-loop could busy-wait when loop is busy; cap total pump-wall-time", "note": "", "dimension": "reliability", "severity": "low", "finding_ref": "I2"}
+{"ts": "2026-10-05T06:07:17Z", "phase": "fix", "type": "change", "source": "odyssey-improve", "content": "hoisted `import threading`/`concurrent.futures` module-top (F-I1)", "note": "", "finding_ref": "I1", "risk": "trivial"}
+{"ts": "2026-10-05T06:07:17Z", "phase": "discovery", "type": "triage", "source": "odyssey-improve", "content": "I2 recorded as limitation; spin-loop bounded by stop flag; remaining_actionable=0", "note": ""}

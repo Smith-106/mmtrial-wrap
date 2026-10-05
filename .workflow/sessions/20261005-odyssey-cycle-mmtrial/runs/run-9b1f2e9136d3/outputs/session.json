@@ -1,0 +1,166 @@
+{
+  "session_id": "odyssey-improve-20261005-0527",
+  "mode": "improve",
+  "target": "mmtrial-wrap app/main.py (467 LoC post-improve-pass-1)",
+  "dimensions": [
+    "performance",
+    "security",
+    "architecture",
+    "reliability",
+    "observability",
+    "maintainability"
+  ],
+  "current_state": "S_RECORD",
+  "flags": {
+    "skip_fix": false,
+    "skip_generalize": false,
+    "auto_confirm": true
+  },
+  "phase_goals": [
+    {
+      "id": "G1",
+      "goal": "Survey completed",
+      "phase": "S_SURVEY",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G2",
+      "goal": "Audit completed",
+      "phase": "S_AUDIT",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G3",
+      "goal": "Diagnosis completed",
+      "phase": "S_DIAGNOSE",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G4",
+      "goal": "Zero remaining",
+      "phase": "S_VERIFY",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G5",
+      "goal": "Pattern generalized",
+      "phase": "S_GENERALIZE",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G6",
+      "goal": "Discoveries triaged",
+      "phase": "S_DISCOVER",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G7",
+      "goal": "Learnings persisted",
+      "phase": "S_RECORD",
+      "status": "done",
+      "completion_confirmed": true
+    }
+  ],
+  "phase_goals_all_done": true,
+  "baseline_metrics": {},
+  "audit_result": {
+    "findings": [
+      {
+        "id": "I1",
+        "sev": "low",
+        "dim": "maintainability",
+        "desc": "`import threading`/`concurrent.futures` inside handler scope — move to module top",
+        "file": "app/main.py",
+        "loc": "~396",
+        "fix": "hoist"
+      },
+      {
+        "id": "I2",
+        "sev": "low",
+        "dim": "reliability",
+        "desc": "`_qput` spin-loop could busy-wait when loop is busy; cap total pump-wall-time",
+        "file": "app/main.py",
+        "loc": "_pump",
+        "fix": "bounded attempts (record limitation)"
+      }
+    ],
+    "by_dim": {
+      "maintainability": 1,
+      "reliability": 1
+    },
+    "by_sev": {
+      "low": 2
+    }
+  },
+  "diagnoses": [
+    {
+      "id": "I1",
+      "action": "fix",
+      "root": "editorial: import inside function"
+    },
+    {
+      "id": "I2",
+      "action": "decision",
+      "root": "bounded queue plus stop flag makes busy-wait bounded; added wall-time note"
+    }
+  ],
+  "patterns": [
+    {
+      "id": "PI1",
+      "layer": "semantic",
+      "signature": "in-function imports of stdlib",
+      "risk": "import overhead/readability",
+      "confidence": "low"
+    },
+    {
+      "id": "PI2",
+      "layer": "structural",
+      "signature": "executor+queue pump",
+      "risk": "bounded but spin",
+      "confidence": "medium"
+    }
+  ],
+  "confirmation": {
+    "verdict": "verified",
+    "evidence": "post-fix live test: healthz, seed, status, stream ok; bad-JSON 400 verified"
+  },
+  "generalization_stats": {
+    "patterns_extracted": 2,
+    "total_hits": 2,
+    "cross_layer_confirmed": 0,
+    "regression_risks": 0,
+    "by_layer": {
+      "syntax": 0,
+      "semantic": 1,
+      "structural": 1
+    },
+    "deepening_triggered": false
+  },
+  "cross_phase_loops": 0,
+  "max_loops": 5,
+  "self_iteration_log": [],
+  "progress_metrics": {
+    "phase_stats": {
+      "S_SURVEY": {
+        "new": 0,
+        "repeated": 0
+      },
+      "S_AUDIT": {
+        "new": 2,
+        "repeated": 0
+      }
+    },
+    "stale_count": 0,
+    "last_productive_phase": "S_AUDIT",
+    "convergence_trend": "diminishing"
+  },
+  "directions_tried": [],
+  "created_at": "2026-10-05T05:27:00Z",
+  "updated_at": "2026-10-05T05:30:00Z"
+}
