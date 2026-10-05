@@ -10,7 +10,7 @@
     "observability",
     "maintainability"
   ],
-  "current_state": "S_DIAGNOSE",
+  "current_state": "S_FIX",
   "flags": {
     "skip_fix": false,
     "skip_generalize": false,
@@ -35,8 +35,8 @@
       "id": "G3",
       "goal": "Diagnosis completed",
       "phase": "S_DIAGNOSE",
-      "status": "pending",
-      "completion_confirmed": false
+      "status": "done",
+      "completion_confirmed": true
     },
     {
       "id": "G4",
@@ -184,7 +184,68 @@
       "low": 3
     }
   },
-  "diagnoses": [],
+  "diagnoses": [
+    {
+      "id": "F1",
+      "root": "wrapper designed as a localhost/dev tool; no auth layer by design. Token-in-URL is inherent to the upstream API (its own URLs embed access_token). True fix = keep 302 default but add API-key gate on write endpoints; proxy-stream default avoids token-in-URL when `stream` not asked.",
+      "action": "fix_partially",
+      "detail": "Add optional API_KEY env gate for write endpoints (POST /v1/generations*, POST /v1/tasks). Leave redirect behavior but default content endpoint to proxy stream unless `redirect=1`."
+    },
+    {
+      "id": "F2",
+      "root": "_prune_tasks only in create path",
+      "action": "fix",
+      "detail": "Move prune into _resolve_task/_get_status (cheap pass) and background task on startup."
+    },
+    {
+      "id": "F3",
+      "root": "used iter([r.content]) as quick impl",
+      "action": "fix",
+      "detail": "async generator yielding iter_content chunks + pass-through Content-Length."
+    },
+    {
+      "id": "F4",
+      "root": "env passthrough unvalidated",
+      "action": "fix",
+      "detail": "Validate MM_XFF against IP/CSV allowlist; reject invalid."
+    },
+    {
+      "id": "F5",
+      "root": "no logging ever added",
+      "action": "fix",
+      "detail": "logging.getLogger('mmtrial-wrap'); INFO on create/refresh; WARNING on upstream failure."
+    },
+    {
+      "id": "F6",
+      "root": "leftover imports",
+      "action": "fix",
+      "detail": "Remove secrets, PlainTextResponse."
+    },
+    {
+      "id": "F7",
+      "root": "dict mutation w/o lock",
+      "action": "fix",
+      "detail": "asyncio.Lock for TASKS mutation."
+    },
+    {
+      "id": "F8",
+      "root": "no disconnect check",
+      "action": "fix",
+      "detail": "await request.is_disconnected() in :await loop via threading.Event checked inside loop."
+    },
+    {
+      "id": "F9",
+      "root": "size OK",
+      "action": "decision",
+      "detail": "Keep single-module until >600 LoC; recorded."
+    },
+    {
+      "id": "F10",
+      "root": "no retry on idempotent GETs",
+      "action": "fix",
+      "detail": "Bounded 2-retry exponential for GETs on 5xx/network error."
+    }
+  ],
   "patterns": [],
   "confirmation": null,
   "generalization_stats": null,
@@ -208,5 +269,5 @@
   },
   "directions_tried": [],
   "created_at": "2026-10-05T04:53:00Z",
-  "updated_at": "2026-10-05T05:00:00Z"
+  "updated_at": "2026-10-05T05:02:00Z"
 }

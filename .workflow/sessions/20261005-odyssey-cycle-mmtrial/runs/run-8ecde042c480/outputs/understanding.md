@@ -26,3 +26,18 @@ Target:  (358 LoC, FastAPI wrapper over SiftQ MiniMax trial). Baseline: manual E
 | F10 | medium | reliability | No upstream timeout/retry policy on GETs |
 
 Severity matrix: 1 high (F1), 6 medium, 3 low.
+
+## 4. Root Cause Diagnosis
+
+- **F1** (fix_partially): wrapper designed as a localhost/dev tool; no auth layer by design. Token-in-URL is inherent to the upstream API (its own URLs embed access_token). True fix = keep 302 default but add API-key gate on write endpoints; proxy-stream default avoids token-in-URL when `stream` not asked.
+- **F2** (fix): _prune_tasks only in create path
+- **F3** (fix): used iter([r.content]) as quick impl
+- **F4** (fix): env passthrough unvalidated
+- **F5** (fix): no logging ever added
+- **F6** (fix): leftover imports
+- **F7** (fix): dict mutation w/o lock
+- **F8** (fix): no disconnect check
+- **F9** (decision): size OK
+- **F10** (fix): no retry on idempotent GETs
+
+Action plan: fix 9 (F1-partial, F2-F8, F10); decision 1 (F9 module split deferred).
