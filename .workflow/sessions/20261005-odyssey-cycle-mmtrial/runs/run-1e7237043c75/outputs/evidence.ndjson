@@ -1,0 +1,5 @@
+{"ts": "2026-10-05T06:16:07Z", "phase": "scan", "type": "finding", "source": "odyssey-security", "content": "access_token appended to upstream status URL in query string — upstream may log ", "note": "", "severity": "medium", "finding_ref": "SEC1"}
+{"ts": "2026-10-05T06:16:07Z", "phase": "scan", "type": "finding", "source": "odyssey-security", "content": "task_id interpolated raw into Content-Disposition filename", "note": "", "severity": "low", "finding_ref": "SEC2"}
+{"ts": "2026-10-05T06:16:07Z", "phase": "scan", "type": "finding", "source": "odyssey-security", "content": "no size cap on UploadFile read — OOM vector", "note": "", "severity": "low", "finding_ref": "SEC3"}
+{"ts": "2026-10-05T06:16:07Z", "phase": "scan", "type": "finding", "source": "odyssey-security", "content": "write endpoints gated when API_KEY set; GET endpoints open (documented contract)", "note": "", "severity": "info", "finding_ref": "SEC4"}
+{"ts": "2026-10-05T06:16:07Z", "phase": "report", "type": "summary", "source": "odyssey-security", "content": "4 findings, 1 medium (upstream-mandated), all classified", "note": ""}
