@@ -1,6 +1,6 @@
 {
   "schema_version": "artifacts/1.0",
-  "revision": 8,
+  "revision": 7,
   "artifacts": {
     "ART-ccaca2789390bf5393b8": {
       "kind": "evidence",
@@ -245,7 +245,7 @@
       "schema_version": "evidence/1.0",
       "content_hash": "d94415a5fce6738f6f3d1e8804262b15aa4d4b06566a7b876479326fc15894f4",
       "size": 621,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": "ART-7b4b98cd7b8861b73514"
     },
@@ -258,7 +258,7 @@
       "schema_version": "exploration/1.0",
       "content_hash": "b08fce963d074032217e61f6e0e57ee230e44624ff746b559f5dd7c47b835e68",
       "size": 223,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": "ART-b38850ea0d47384e516f"
     },
@@ -271,7 +271,7 @@
       "schema_version": "session/1.0",
       "content_hash": "27e1570210ab343b78265f33bd356165de2c38f6d9d201d8fd2f6042840ecc2d",
       "size": 3044,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": "ART-662809ed4997bac9d32e"
     },
@@ -284,7 +284,7 @@
       "schema_version": "diagnosis-report/1.0",
       "content_hash": "f32f6eb84a792c86e3cbf80899c3894bb12785cd982c583827cfa5dbacbc6d23",
       "size": 1064,
-      "status": "superseded",
+      "status": "sealed",
       "derived_from": [],
       "replaces": "ART-9a34404e2a9d688cb957"
     },
@@ -339,58 +339,6 @@
       "status": "sealed",
       "derived_from": [],
       "replaces": null
-    },
-    "ART-bfed103fbb53f1339b4d": {
-      "kind": "evidence",
-      "role": "evidence",
-      "producer_run_id": "run-036c4cbaff52",
-      "relative_path": "runs/run-036c4cbaff52/outputs/evidence.ndjson",
-      "media_type": "application/x-ndjson",
-      "schema_version": "evidence/1.0",
-      "content_hash": "d346ffa2b5290f6ad89c7196072741b1f7c6eb28ea3c7da9e4a662986dd8dc33",
-      "size": 579,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-c4e6e4af019aa2c5bdfb"
-    },
-    "ART-70a297ca87e15418a0b4": {
-      "kind": "exploration",
-      "role": "evidence",
-      "producer_run_id": "run-036c4cbaff52",
-      "relative_path": "runs/run-036c4cbaff52/outputs/explore.json",
-      "media_type": "application/json",
-      "schema_version": "exploration/1.0",
-      "content_hash": "0f0de97a5e00849fac936b012489d9dfa826dc888b9477c7cfb374e241dd9b50",
-      "size": 242,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-0b7877481154531edb97"
-    },
-    "ART-c05f142de36c5fdbb7eb": {
-      "kind": "session",
-      "role": "primary",
-      "producer_run_id": "run-036c4cbaff52",
-      "relative_path": "runs/run-036c4cbaff52/outputs/session.json",
-      "media_type": "application/json",
-      "schema_version": "session/1.0",
-      "content_hash": "57c696bcc29acda50da79e9d8f52c2bd61c87581d3c5efae40d37e5e6bbfb4f7",
-      "size": 2975,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-10533fabf62979d1a75a"
-    },
-    "ART-1d33290bbf49c475ac90": {
-      "kind": "diagnosis-report",
-      "role": "primary",
-      "producer_run_id": "run-036c4cbaff52",
-      "relative_path": "runs/run-036c4cbaff52/outputs/understanding.md",
-      "media_type": "text/markdown",
-      "schema_version": "diagnosis-report/1.0",
-      "content_hash": "6f8491118a309d1e7826d318298c92bc66a4a952a057f25f4a98fead68be3dd6",
-      "size": 666,
-      "status": "sealed",
-      "derived_from": [],
-      "replaces": "ART-08282f45bd951072c234"
     }
   },
   "aliases": {
@@ -400,10 +348,10 @@
     "review-explore": "ART-c519343c718de4c08489",
     "review-session": "ART-948d7fd41622e8fe2e57",
     "review-understanding": "ART-5a3103e01089fe4af6e5",
-    "debug-evidence": "ART-bfed103fbb53f1339b4d",
-    "debug-explore": "ART-70a297ca87e15418a0b4",
-    "debug-session": "ART-c05f142de36c5fdbb7eb",
-    "debug-understanding": "ART-1d33290bbf49c475ac90",
+    "debug-evidence": "ART-c4e6e4af019aa2c5bdfb",
+    "debug-explore": "ART-0b7877481154531edb97",
+    "debug-session": "ART-10533fabf62979d1a75a",
+    "debug-understanding": "ART-08282f45bd951072c234",
     "defensive-anchors": "ART-d0d6554b24f62a1629fa",
     "defensive-evidence": "ART-d3e739e0d15696972281",
     "defensive-session": "ART-0773eacca2f70ecf806e",
