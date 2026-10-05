@@ -1,0 +1,7 @@
+{
+  "schema_version": "request-receipt/2.0",
+  "request_id": "cli-91c999799686019e",
+  "participant_id": "actor-niko",
+  "payload_hash": "sha256:d29a40e5d416305bf60df753f4bc82225a089f15cf08d22864af1832520982a4",
+  "transition_receipt_ref": "receipts/transitions/000000000030-tr_b3c90bd5-a6c2-4b9e-82b9-31af1acb3dae.json"
+}

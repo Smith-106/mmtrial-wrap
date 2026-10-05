@@ -105,6 +105,11 @@ class CookieProvider:
 
     def invalidate(self) -> None:
         self._value = ""
+        # also drop the on-disk cache so a restarted process doesn't resurrect a stale cookie
+        try:
+            os.remove(COOKIE_FILE)
+        except OSError:
+            pass
 
     async def ensure(self, force: bool = False) -> str:
         if self._value and not force:

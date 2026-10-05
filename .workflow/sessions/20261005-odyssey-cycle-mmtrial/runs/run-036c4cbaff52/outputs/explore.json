@@ -1,0 +1,5 @@
+{
+  "symptom": "dead cf_clearance resurrected after process restart",
+  "call_chain": "invalidate() -> self._value='' ; restart -> _load_cookie() -> file -> stale value returns",
+  "evidence_loc": "app/main.py _load_cookie / invalidate"
+}

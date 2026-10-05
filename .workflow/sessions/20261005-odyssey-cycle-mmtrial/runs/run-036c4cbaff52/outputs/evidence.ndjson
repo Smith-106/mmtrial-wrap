@@ -1,0 +1,3 @@
+{"ts": "2026-10-05T06:14:40Z", "phase": "diagnosis", "type": "root_cause", "source": "odyssey-debug", "content": "invalidate() cleared only in-memory; disk cache resurrected stale cookie on restart", "note": "", "result": "confirmed"}
+{"ts": "2026-10-05T06:14:40Z", "phase": "fix", "type": "change", "source": "odyssey-debug", "content": "invalidate() now removes cf_clearance.txt", "note": "", "finding_ref": "D1", "risk": "low"}
+{"ts": "2026-10-05T06:14:40Z", "phase": "discovery", "type": "triage", "source": "odyssey-debug", "content": "single finding fixed", "note": ""}

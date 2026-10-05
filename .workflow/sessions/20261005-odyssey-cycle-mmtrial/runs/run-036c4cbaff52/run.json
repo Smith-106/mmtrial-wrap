@@ -1,0 +1,27 @@
+{
+  "schema_version": "run/3.0",
+  "run_id": "run-036c4cbaff52",
+  "session_id": "20261005-odyssey-cycle-mmtrial",
+  "step_id": "step-8-odyssey-debug",
+  "parent_run_id": null,
+  "retry_of_run_id": null,
+  "attempt": 1,
+  "command": "odyssey-debug",
+  "args": [
+    "mmtrial-wrap (debug pass 8)"
+  ],
+  "command_contract_hash": "sha256:858dbb10447af8c30192428f0935a3ab77cded337972934deb28c69e16b7cbbe",
+  "goal": null,
+  "status": "running",
+  "revision": 1,
+  "actor_id": "actor-niko",
+  "input_refs": [],
+  "output_refs": [],
+  "primary_artifact_id": null,
+  "verdict": null,
+  "summary": null,
+  "created_at": "2026-10-05T06:13:52.205Z",
+  "started_at": "2026-10-05T06:13:52.210Z",
+  "ended_at": null,
+  "sealed_at": null
+}

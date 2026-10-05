@@ -1,0 +1,106 @@
+{
+  "session_id": "odyssey-debug-20261005-0555",
+  "mode": "debug",
+  "target": "mmtrial-wrap cookie staleness across restart",
+  "issue": "CookieProvider.invalidate() cleared only in-memory _value; stale cf_clearance stayed on disk (cf_clearance.txt) and was resurrected on next process start — a restarted service kept submitting with a dead cookie until AUTO_CLEARANCE ran",
+  "current_state": "S_RECORD",
+  "flags": {
+    "skip_fix": false,
+    "skip_generalize": false,
+    "auto_confirm": true
+  },
+  "phase_goals": [
+    {
+      "id": "G1",
+      "goal": "Root cause identified",
+      "phase": "S_DIAGNOSE",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G2",
+      "goal": "Explore context gathered",
+      "phase": "S_EXPLORE",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G3",
+      "goal": "Fix applied and confirmed",
+      "phase": "S_CONFIRM",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G4",
+      "goal": "Pattern generalized",
+      "phase": "S_GENERALIZE",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G5",
+      "goal": "Discoveries triaged",
+      "phase": "S_DISCOVER",
+      "status": "done",
+      "completion_confirmed": true
+    },
+    {
+      "id": "G6",
+      "goal": "Learnings persisted",
+      "phase": "S_RECORD",
+      "status": "done",
+      "completion_confirmed": true
+    }
+  ],
+  "phase_goals_all_done": true,
+  "diagnoses": [
+    {
+      "id": "D1",
+      "issue": "cookie staleness resurrection",
+      "root": "invalidate() cleared only _value; _save_cookie never invoked with ''; on restart _load_cookie() re-reads stale file"
+    }
+  ],
+  "patterns": [
+    {
+      "id": "PD3",
+      "layer": "semantic",
+      "signature": "dual-source state (env/file + in-memory) diverging on invalidate",
+      "risk": "stale value resurrected after restart",
+      "fix_template": "invalidate must clear every persistence layer",
+      "confidence": "high"
+    }
+  ],
+  "generalization_stats": {
+    "patterns_extracted": 1,
+    "total_hits": 1,
+    "cross_layer_confirmed": 0,
+    "regression_risks": 0,
+    "by_layer": {
+      "syntax": 0,
+      "semantic": 1,
+      "structural": 0
+    },
+    "deepening_triggered": false
+  },
+  "confirmation": {
+    "verdict": "confirmed",
+    "evidence": "invalidate() now also deletes cf_clearance.txt; static inspection confirmed; compile+AST clean"
+  },
+  "cross_phase_loops": 0,
+  "max_loops": 5,
+  "self_iteration_log": [],
+  "progress_metrics": {
+    "phase_stats": {
+      "S_DIAGNOSE": {
+        "new": 1
+      }
+    },
+    "stale_count": 0,
+    "last_productive_phase": "S_DIAGNOSE",
+    "convergence_trend": "unknown"
+  },
+  "directions_tried": [],
+  "created_at": "2026-10-05T05:55:00Z",
+  "updated_at": "2026-10-05T05:59:00Z"
+}
