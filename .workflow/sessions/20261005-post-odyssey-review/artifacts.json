@@ -1,6 +1,50 @@
 {
   "schema_version": "artifacts/1.0",
-  "revision": 0,
-  "artifacts": {},
-  "aliases": {}
+  "revision": 1,
+  "artifacts": {
+    "ART-b6fefd4f27b1ccc0c605": {
+      "kind": "evidence",
+      "role": "evidence",
+      "producer_run_id": "run-5f1434ee380c",
+      "relative_path": "runs/run-5f1434ee380c/outputs/evidence.ndjson",
+      "media_type": "application/x-ndjson",
+      "schema_version": "evidence/1.0",
+      "content_hash": "995e1a4244de8beba0dd5e9ca403f3d0b918fb433e768ce35a5dd5b730a7b981",
+      "size": 372,
+      "status": "sealed",
+      "derived_from": [],
+      "replaces": null
+    },
+    "ART-75e405a52f24e0b5c64c": {
+      "kind": "session",
+      "role": "primary",
+      "producer_run_id": "run-5f1434ee380c",
+      "relative_path": "runs/run-5f1434ee380c/outputs/session.json",
+      "media_type": "application/json",
+      "schema_version": "session/1.0",
+      "content_hash": "1f5b090a37a6a35afdfd0414df5e2c1c24cf70b37d3c99b58ae64d34106aae77",
+      "size": 2451,
+      "status": "sealed",
+      "derived_from": [],
+      "replaces": null
+    },
+    "ART-60d7357b375c6a32c56b": {
+      "kind": "review-report",
+      "role": "primary",
+      "producer_run_id": "run-5f1434ee380c",
+      "relative_path": "runs/run-5f1434ee380c/outputs/understanding.md",
+      "media_type": "text/markdown",
+      "schema_version": "review-report/1.0",
+      "content_hash": "c215080f1d4fbcd66fda46946b4ef2d60a776c7da51e5b2a5481dabd7ce852b7",
+      "size": 808,
+      "status": "sealed",
+      "derived_from": [],
+      "replaces": null
+    }
+  },
+  "aliases": {
+    "review-evidence": "ART-b6fefd4f27b1ccc0c605",
+    "review-session": "ART-75e405a52f24e0b5c64c",
+    "review-understanding": "ART-60d7357b375c6a32c56b"
+  }
 }
