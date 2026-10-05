@@ -1,0 +1,25 @@
+HTTP/1.1 200 OK
+Date: Mon, 05 Oct 2026 01:19:49 GMT
+Content-Type: video/mp4;charset=UTF-8
+Content-Length: 623355
+Connection: keep-alive
+Server: cloudflare
+access-control-allow-methods: POST, GET, OPTIONS, DELETE, PUT, PATCH
+access-control-max-age: 0
+access-control-allow-headers: Origin,X-SiftQ-Girl-Visitor,auth,studyspace-debug,Idempotency-Key,androidh5,X-E4M-With,X-SiftQ-Channel,is-studyspace-search-widget,Last-Modified,studyspace-ios,studyspace-h5,Authorization,studyspace-pc,X-Chat-Attempt-Id,client-type,api,Content-Type,deviceType,No-Cache,iosh5,studyspace-app,X-Requested-With,device-name,Priority,origin-from,X-MiniMax-Admin-Key,X-Chat-Turn-Id,studyspace-android,Pragma,userId,X-Girl-Id,studyspace-aliapp,token,os-version,X-MiniMax-Trial-Client,Distinguish-Origin-from,Cache-Control,studyspace-mini,If-Modified-Since,Is-Mini-Webview,X-Girl-Guest-Uid,Expires,X-Girl-Share-Key
+access-control-allow-credentials: true
+xdomainrequestallowed: 1
+Set-Cookie: JSESSIONID=<REDACTED>; Path=/api; Secure; HttpOnly
+vary: Origin
+vary: Access-Control-Request-Method
+vary: Access-Control-Request-Headers
+content-disposition: inline; filename=video-2106917100135796736.mp4
+Accept-Ranges: bytes
+etag: "87d9a52a494119253f7de6ab3bb224ea"
+last-modified: Mon, 05 Oct 2026 01:19:29 GMT
+cf-cache-status: DYNAMIC
+Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=ZU3ag5rtTfKxbTWDY1u%2FbGypiN33qQY8RgjX6fX%2F9GDaj%2FOvwYyd9bc%2BOHRXrt5GY2cqyfeMpgyPuOHMBEkAZ9wxEMkhUUA1YHJkBIc%2F0MiPSgQxRhVHlq2LEBA%3D"}]}
+CF-RAY: a45899a6ecb350cc-KIX
+alt-svc: h3=":443"; ma=86400
+

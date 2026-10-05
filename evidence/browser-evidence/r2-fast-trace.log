@@ -1,0 +1,28 @@
+=== fast-trace armed 2026-10-04 21:30:45 UTC; waiting for r1b-final.json ===
+RESULT NO_TASK 21:31:40
+=== fast-trace armed 2026-10-05 01:15:10 UTC; waiting for r1b-final.json ===
+=== UI-task fast-trace 01:17:07 task=2106916497848651776 ===
+01:17:07.461 "status":"running"
+01:17:08.708 "status":"running"
+01:17:09.909 "status":"running"
+01:17:11.085 "status":"running"
+01:17:12.275 "status":"running"
+01:17:13.484 "status":"running"
+01:17:14.699 "status":"running"
+01:17:15.915 "status":"running"
+01:17:17.110 "status":"running"
+01:17:18.291 "status":"running"
+01:17:19.485 "status":"running"
+01:17:20.687 "status":"running"
+01:17:21.932 "status":"succeeded"
+=== fast-trace-stop 01:17:22 ===
+=== R1-literal fast-trace 01:19:22 task=2106917093095886848 ===
+01:19:22.101 "status":"running"
+01:19:23.355 "status":"running"
+01:19:24.556 "status":"running"
+01:19:25.762 "status":"running"
+01:19:27.060 "status":"running"
+01:19:28.234 "status":"running"
+01:19:29.421 "status":"running"
+01:19:30.616 "status":"succeeded"
+=== fast-trace-stop 01:19:31 ===

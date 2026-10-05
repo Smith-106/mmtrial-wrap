@@ -1,0 +1,9 @@
+INFO:     Started server process [58964]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+INFO:     127.0.0.1:6902 - "GET /healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6904 - "POST /v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6916 - "GET /v1/tasks/2106917093095886848 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:5690 - "HEAD /v1/tasks/2106917093095886848/content HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:5692 - "GET /v1/tasks/2106917093095886848/content?stream=1 HTTP/1.1" 200 OK

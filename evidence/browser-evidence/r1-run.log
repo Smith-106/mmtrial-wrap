@@ -1,0 +1,95 @@
++ set -uo pipefail
++++ dirname ./r1-transport-fallback.sh
+++ cd .
+++ pwd
++ D=/c/Users/niko/.pi/browser-artifacts/mmtrial-evidence
+++ genuuid
+++ python -c 'import uuid;print(uuid.uuid4())'
++ CID=mmtrial_d7dc4fdb-ac1d-40a7-89f8-2ade45375d78
+++ printf %d.%d.%d.%d 207 130 86 180
++ FAKEIP=207.130.86.180
++ PROMPT=$'\345\244\234\350\211\262\344\270\255\347\232\204\344\270\234\344\272\254\350\241\227\345\244\264\357\274\214\344\270\200\344\270\252\345\245\263\345\255\251\350\275\254\350\272\253\345\233\236\347\234\270\357\274\214\351\234\223\350\231\271\345\234\250\351\233\250\344\270\255\346\231\225\345\274\200\357\274\214\347\224\265\345\275\261\346\204\237\357\274\214\346\205\242\345\212\250\344\275\234'
++ IMG=C:/Users/niko/.pi/browser-artifacts/mmtrial-input.jpg
++ UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36'
+++ cat /tmp/mmtrial_cf.txt
++ CF=<REDACTED>
++ export CID FAKEIP PROMPT IMG UA CF D
++ date -u
+Mon Oct  5 01:15:14 UTC 2026
++ echo CID=mmtrial_d7dc4fdb-ac1d-40a7-89f8-2ade45375d78
+CID=mmtrial_d7dc4fdb-ac1d-40a7-89f8-2ade45375d78
++ echo XFF=207.130.86.180
+XFF=207.130.86.180
+++ genuuid
+++ python -c 'import uuid;print(uuid.uuid4())'
++ IDEM=mmtrial_97622aeb-174a-4818-818d-5f5ca841f10a
+++ genuuid
+++ python -c 'import uuid;print(uuid.uuid4())'
++ VISITOR=d4a443a6-efbf-4c0e-bdbb-6b52e699d1e9
++ echo Idempotency-Key=mmtrial_97622aeb-174a-4818-818d-5f5ca841f10a
+Idempotency-Key=mmtrial_97622aeb-174a-4818-818d-5f5ca841f10a
++ echo visitorId=d4a443a6-efbf-4c0e-bdbb-6b52e699d1e9
+visitorId=d4a443a6-efbf-4c0e-bdbb-6b52e699d1e9
++ run_attempt no-idem
++ local tag=no-idem
++ shift
++ extra=()
++ local extra
++ echo '=== ATTEMPT no-idem: extra header(s): none ==='
+=== ATTEMPT no-idem: extra header(s): none ===
++ curl -X POST https://siftq.com/api/minimax-trial/video-generation -H 'X-MiniMax-Trial-Client: mmtrial_d7dc4fdb-ac1d-40a7-89f8-2ade45375d78' -H 'X-Forwarded-For: 207.130.86.180' -H 'Cookie: cf_clearance=<REDACTED>' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36' -H 'Origin: https://siftq.com' -H 'Referer: https://siftq.com/minimax-h3/free-trial' -F client_id=mmtrial_d7dc4fdb-ac1d-40a7-89f8-2ade45375d78 -F ratio=9:16 -F duration=6 -F $'prompt=\345\244\234\350\211\262\344\270\255\347\232\204\344\270\234\344\272\254\350\241\227\345\244\264\357\274\214\344\270\200\344\270\252\345\245\263\345\255\251\350\275\254\350\272\253\345\233\236\347\234\270\357\274\214\351\234\223\350\231\271\345\234\250\351\233\250\344\270\255\346\231\225\345\274\200\357\274\214\347\224\265\345\275\261\346\204\237\357\274\214\346\205\242\345\212\250\344\275\234' -F image=@C:/Users/niko/.pi/browser-artifacts/mmtrial-input.jpg -sS -D /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-no-idem.hdr -o /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-no-idem.json
++ echo curl_exit=0
+curl_exit=0
++ grep -m1 -E '^HTTP/' /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-no-idem.hdr
+HTTP/1.1 400 Bad Request
++ grep -q task_id /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-no-idem.json
++ echo '--- body (small) ---'
+--- body (small) ---
++ head -c 400 /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-no-idem.json
+{"type":"error","error":{"http_code":"400","type":"bad_request_error","message":"生成视频失败，请稍后再试"}}+ echo
+
++ return 1
++ run_attempt with-idem -H 'Idempotency-Key: mmtrial_97622aeb-174a-4818-818d-5f5ca841f10a'
++ local tag=with-idem
++ shift
++ extra=('-H' 'Idempotency-Key: mmtrial_97622aeb-174a-4818-818d-5f5ca841f10a')
++ local extra
++ echo '=== ATTEMPT with-idem: extra header(s): -H Idempotency-Key: mmtrial_97622aeb-174a-4818-818d-5f5ca841f10a ==='
+=== ATTEMPT with-idem: extra header(s): -H Idempotency-Key: mmtrial_97622aeb-174a-4818-818d-5f5ca841f10a ===
++ curl -X POST https://siftq.com/api/minimax-trial/video-generation -H 'X-MiniMax-Trial-Client: mmtrial_d7dc4fdb-ac1d-40a7-89f8-2ade45375d78' -H 'X-Forwarded-For: 207.130.86.180' -H 'Cookie: cf_clearance=<REDACTED>' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36' -H 'Origin: https://siftq.com' -H 'Referer: https://siftq.com/minimax-h3/free-trial' -H 'Idempotency-Key: mmtrial_97622aeb-174a-4818-818d-5f5ca841f10a' -F client_id=mmtrial_d7dc4fdb-ac1d-40a7-89f8-2ade45375d78 -F ratio=9:16 -F duration=6 -F $'prompt=\345\244\234\350\211\262\344\270\255\347\232\204\344\270\234\344\272\254\350\241\227\345\244\264\357\274\214\344\270\200\344\270\252\345\245\263\345\255\251\350\275\254\350\272\253\345\233\236\347\234\270\357\274\214\351\234\223\350\231\271\345\234\250\351\233\250\344\270\255\346\231\225\345\274\200\357\274\214\347\224\265\345\275\261\346\204\237\357\274\214\346\205\242\345\212\250\344\275\234' -F image=@C:/Users/niko/.pi/browser-artifacts/mmtrial-input.jpg -sS -D /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-with-idem.hdr -o /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-with-idem.json
++ echo curl_exit=0
+curl_exit=0
++ grep -m1 -E '^HTTP/' /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-with-idem.hdr
+HTTP/1.1 400 Bad Request
++ grep -q task_id /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-with-idem.json
++ echo '--- body (small) ---'
+--- body (small) ---
++ head -c 400 /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-with-idem.json
+{"type":"error","error":{"http_code":"400","type":"bad_request_error","message":"生成视频失败，请稍后再试"}}+ echo
+
++ return 1
++ curl -X POST https://siftq.com/api/minimax-trial/video-generation -H 'X-MiniMax-Trial-Client: mmtrial_d7dc4fdb-ac1d-40a7-89f8-2ade45375d78' -H 'X-Forwarded-For: 207.130.86.180' -H 'Cookie: cf_clearance=<REDACTED>' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36' -H 'Origin: https://siftq.com' -H 'Referer: https://siftq.com/minimax-h3/free-trial' -H 'Idempotency-Key: mmtrial_97622aeb-174a-4818-818d-5f5ca841f10a' -H 'Accept: application/json' -F client_id=mmtrial_d7dc4fdb-ac1d-40a7-89f8-2ade45375d78 -F ratio=9:16 -F duration=6 -F visitorId=d4a443a6-efbf-4c0e-bdbb-6b52e699d1e9 -F channelCode=direct -F $'prompt=\345\244\234\350\211\262\344\270\255\347\232\204\344\270\234\344\272\254\350\241\227\345\244\264\357\274\214\344\270\200\344\270\252\345\245\263\345\255\251\350\275\254\350\272\253\345\233\236\347\234\270\357\274\214\351\234\223\350\231\271\345\234\250\351\233\250\344\270\255\346\231\225\345\274\200\357\274\214\347\224\265\345\275\261\346\204\237\357\274\214\346\205\242\345\212\250\344\275\234' -F 'image=@C:/Users/niko/.pi/browser-artifacts/mmtrial-input.jpg;type=image/jpeg' -sS -D /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-xf-type.hdr -o /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-xf-type.json
++ echo curl_exit=0
+curl_exit=0
++ grep -m1 -E '^HTTP/' /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-xf-type.hdr
+HTTP/1.1 400 Bad Request
++ grep -q task_id /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-xf-type.json
++ true
++ echo '=== diagnostic: same shape WITHOUT XFF (expect 429 = reaches quota; never creates task while quota exhausted) ==='
+=== diagnostic: same shape WITHOUT XFF (expect 429 = reaches quota; never creates task while quota exhausted) ===
++ curl -X POST https://siftq.com/api/minimax-trial/video-generation -H 'X-MiniMax-Trial-Client: mmtrial_d7dc4fdb-ac1d-40a7-89f8-2ade45375d78' -H 'Cookie: cf_clearance=<REDACTED>' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36' -H 'Origin: https://siftq.com' -H 'Referer: https://siftq.com/minimax-h3/free-trial' -H 'Idempotency-Key: mmtrial_97622aeb-174a-4818-818d-5f5ca841f10a' -H 'Accept: application/json' -F client_id=mmtrial_d7dc4fdb-ac1d-40a7-89f8-2ade45375d78 -F ratio=9:16 -F duration=6 -F visitorId=d4a443a6-efbf-4c0e-bdbb-6b52e699d1e9 -F channelCode=direct -F $'prompt=\345\244\234\350\211\262\344\270\255\347\232\204\344\270\234\344\272\254\350\241\227\345\244\264\357\274\214\344\270\200\344\270\252\345\245\263\345\255\251\350\275\254\350\272\253\345\233\236\347\234\270\357\274\214\351\234\223\350\231\271\345\234\250\351\233\250\344\270\255\346\231\225\345\274\200\357\274\214\347\224\265\345\275\261\346\204\237\357\274\214\346\205\242\345\212\250\344\275\234' -F 'image=@C:/Users/niko/.pi/browser-artifacts/mmtrial-input.jpg;type=image/jpeg' -sS -D /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-noxf-type.hdr -o /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-noxf-type.json
++ echo curl_exit=0
+curl_exit=0
++ grep -m1 -E '^HTTP/' /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-noxf-type.hdr
+HTTP/1.1 400 Bad Request
++ head -c 400 /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-noxf-type.json
+{"type":"error","error":{"http_code":"400","type":"bad_request_error","message":"生成视频失败，请稍后再试"}}+ echo
+
++ rc=0
++ echo '=== final ==='
+=== final ===
++ cat /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r1b-final.json
++ head -c 600
++ echo
+
++ exit 0

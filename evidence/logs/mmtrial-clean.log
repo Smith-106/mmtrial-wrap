@@ -1,0 +1,13 @@
+INFO:     Started server process [66040]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8080 (Press CTRL+C to quit)
+INFO:     127.0.0.1:1656 - "GET /healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1657 - "GET /v1/usage?client_id=verify_clean_001 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:5909 - "POST /v1/tasks HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:5911 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:5931 - "POST /v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:5932 - "GET /v1/tasks/2106967203628830720?client_id=x&access_token=y HTTP/1.1" 400 Bad Request
+C:\Users\niko\AppData\Local\mise\installs\python\3.14.8\Lib\site-packages\fastapi\openapi\utils.py:303: UserWarning: Duplicate Operation ID task_content_v1_tasks__task_id__content_get for function task_content at C:\Users\niko\mmtrial-wrap\app\main.py
+  warnings.warn(message, stacklevel=1)
+INFO:     127.0.0.1:12833 - "GET /openapi.json HTTP/1.1" 200 OK

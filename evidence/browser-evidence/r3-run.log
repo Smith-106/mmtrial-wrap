@@ -1,0 +1,108 @@
++ set -uo pipefail
++++ dirname ./r3-download.sh
+++ cd .
+++ pwd
++ D=/c/Users/niko/.pi/browser-artifacts/mmtrial-evidence
++ TID=2106702460338950144
++ CID=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57
++ TOK=988a2527-cd33-4663-a5f1-35b4affdf639
++ URL='https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=988a2527-cd33-4663-a5f1-35b4affdf639'
++ echo 'URL=https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=988a2527-cd33-4663-a5f1-35b4affdf639'
+URL=https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=988a2527-cd33-4663-a5f1-35b4affdf639
++ curl -sS -v -o /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-download.mp4 -D /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-content.hdr 'https://siftq.com/api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=988a2527-cd33-4663-a5f1-35b4affdf639'
+* Host siftq.com:443 was resolved.
+* IPv6: (none)
+* IPv4: 198.18.1.128
+*   Trying 198.18.1.128:443...
+* schannel: disabled automatic use of client certificate
+* ALPN: curl offers http/1.1
+* ALPN: server accepted http/1.1
+* Established connection to siftq.com (198.18.1.128 port 443) from 198.18.0.1 port 6095 
+* using HTTP/1.x
+> GET /api/minimax-trial/video-generation/2106702460338950144/content?client_id=mmtrial_37c012af-d651-4927-b25b-2e80152b4f57&access_token=988a2527-cd33-4663-a5f1-35b4affdf639 HTTP/1.1
+
+> Host: siftq.com
+
+> User-Agent: curl/8.21.0
+
+> Accept: */*
+
+> 
+
+* Request completely sent off
+* schannel: remote party requests renegotiation
+* schannel: renegotiating SSL/TLS connection
+* schannel: SSL/TLS connection renegotiated
+< HTTP/1.1 200 OK
+
+< Date: Sun, 04 Oct 2026 21:01:54 GMT
+
+< Content-Type: video/mp4;charset=UTF-8
+
+< Content-Length: 1135959
+
+< Connection: keep-alive
+
+< Server: cloudflare
+
+< access-control-allow-methods: POST, GET, OPTIONS, DELETE, PUT, PATCH
+
+< access-control-max-age: 0
+
+< access-control-allow-headers: Origin,X-SiftQ-Girl-Visitor,auth,studyspace-debug,Idempotency-Key,androidh5,X-E4M-With,X-SiftQ-Channel,is-studyspace-search-widget,Last-Modified,studyspace-ios,studyspace-h5,Authorization,studyspace-pc,X-Chat-Attempt-Id,client-type,api,Content-Type,deviceType,No-Cache,iosh5,studyspace-app,X-Requested-With,device-name,Priority,origin-from,X-MiniMax-Admin-Key,X-Chat-Turn-Id,studyspace-android,Pragma,userId,X-Girl-Id,studyspace-aliapp,token,os-version,X-MiniMax-Trial-Client,Distinguish-Origin-from,Cache-Control,studyspace-mini,If-Modified-Since,Is-Mini-Webview,X-Girl-Guest-Uid,Expires,X-Girl-Share-Key
+
+< access-control-allow-credentials: true
+
+< xdomainrequestallowed: 1
+
+< Set-Cookie: JSESSIONID=<REDACTED>; Path=/api; Secure; HttpOnly
+
+< vary: Origin
+
+< vary: Access-Control-Request-Method
+
+< vary: Access-Control-Request-Headers
+
+< content-disposition: inline; filename=video-2106702468355604480.mp4
+
+< Accept-Ranges: bytes
+
+< etag: "e5ed1b249ff5e243399c66483939f718"
+
+< last-modified: Sun, 04 Oct 2026 11:06:49 GMT
+
+< cf-cache-status: DYNAMIC
+
+< Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=IXwQLtNbI%2FsTclyrkl%2BBsj8%2FNk4XoH%2FIUVoJuXssmGykpSiA4CHktc8MtdxwPPyyRHre%2FVO6Mn4fTvJxQ6aozUn0hHuMHvdTMTkpKc%2BN4P%2FzS58c2ROnS2%2BmRNw%3D"}]}
+
+< Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+
+< CF-RAY: a4571fd5eec61450-KIX
+
+< alt-svc: h3=":443"; ma=86400
+
+< 
+
+{ [225 bytes data]
+* Connection #0 to host siftq.com:443 left intact
++ echo curl_exit=0
+curl_exit=0
++ echo '=== verify ==='
+=== verify ===
++ wc -c /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-download.mp4
+1135959 /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-download.mp4
++ sha256sum /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-download.mp4
+54dc57809bec26c79390d05fdd92413c30a5a7f1ece350272de27caeb76665c3 */c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-download.mp4
++ file /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-download.mp4
+/c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-download.mp4: ISO Media, MP4 Base Media v1 [ISO 14496-12:2003]
++ ffprobe -v error -show_entries format=size,duration -show_entries stream=codec_name,width,height,avg_frame_rate -of default=noprint_wrappers=1 /c/Users/niko/.pi/browser-artifacts/mmtrial-evidence/r3-download.mp4
+codec_name=h264
+width=768
+height=1344
+avg_frame_rate=24/1
+codec_name=aac
+avg_frame_rate=0/0
+duration=6.583333
+size=1135959
++ echo expected_sha=54dc57809bec26c79390d05fdd92413c30a5a7f1ece350272de27caeb76665c3
+expected_sha=54dc57809bec26c79390d05fdd92413c30a5a7f1ece350272de27caeb76665c3

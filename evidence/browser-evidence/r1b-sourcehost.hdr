@@ -1,0 +1,21 @@
+HTTP/1.1 200 OK
+Date: Mon, 05 Oct 2026 01:19:14 GMT
+Content-Type: application/json;charset=UTF-8
+Content-Length: 227
+Connection: keep-alive
+Server: cloudflare
+access-control-allow-origin: https://siftq.com
+access-control-allow-methods: POST, GET, OPTIONS, DELETE, PUT, PATCH
+access-control-max-age: 0
+access-control-allow-headers: Origin,X-SiftQ-Girl-Visitor,auth,studyspace-debug,Idempotency-Key,androidh5,X-E4M-With,X-SiftQ-Channel,is-studyspace-search-widget,Last-Modified,studyspace-ios,studyspace-h5,Authorization,studyspace-pc,X-Chat-Attempt-Id,client-type,api,Content-Type,deviceType,No-Cache,iosh5,studyspace-app,X-Requested-With,device-name,Priority,origin-from,X-MiniMax-Admin-Key,X-Chat-Turn-Id,studyspace-android,Pragma,userId,X-Girl-Id,studyspace-aliapp,token,os-version,X-MiniMax-Trial-Client,Distinguish-Origin-from,Cache-Control,studyspace-mini,If-Modified-Since,Is-Mini-Webview,X-Girl-Guest-Uid,Expires,X-Girl-Share-Key
+access-control-allow-credentials: true
+xdomainrequestallowed: 1
+vary: Origin
+vary: Access-Control-Request-Method
+vary: Access-Control-Request-Headers
+cf-cache-status: DYNAMIC
+Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=4XkrYz5g%2BiNfnW9nHNZstewO0e9zYo2r5rHx0Wxzay%2BPN1042YACcxMt%2BzKIYuvLvC8TVpdZoepyeXqrs8dDTkCFzKnG8wR8qp4F5zgUZEvX5mPqKMZxsSWB9P4%3D"}]}
+CF-RAY: a45898cb7e6b58d6-KIX
+alt-svc: h3=":443"; ma=86400
+
