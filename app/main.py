@@ -6,13 +6,23 @@ and IP handle Cloudflare. This service exposes a clean, official-looking API:
 
     POST /v1/generations          -> create generation task
     POST /v1/generations:await    -> create + block until terminal
+    POST /v1/batches              -> submit N images x N prompts (202 + batch_id)
+    GET  /v1/batches/{batch_id}   -> batch progress
+    POST /v1/batches/{id}:await   -> block until batch terminal
     GET  /v1/tasks/{task_id}      -> poll status
     GET  /v1/tasks/{task_id}/content -> download (302 redirect or stream)
     GET  /v1/usage                -> quota snapshot
+    GET  /v1/proxies              -> proxy pool health/rotation stats
+    POST /v1/proxies/check        -> probe all configured proxies
     GET  /healthz
 """
 import asyncio, base64, hmac, logging, os, re, time, uuid, json
 from typing import Optional
+
+try:
+    from app.proxy_pool import ProxyPool
+except ImportError:  # direct module run
+    from proxy_pool import ProxyPool
 
 from fastapi import FastAPI, Request, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
@@ -29,8 +39,20 @@ CDP_HOST = os.getenv("CDP_HOST", "localhost")
 CDP_PORT = os.getenv("CDP_PORT", "11611")
 PROMPT_DEFAULT = "夜色中的东京街头，一个女孩转身回眸，霓虹在雨中晕开，电影感，慢动作"
 API_KEY = os.getenv("API_KEY", "").strip()  # optional: require on write endpoints
+BATCH_MAX_ITEMS = int(os.getenv("BATCH_MAX_ITEMS", "20"))
+BATCH_CONCURRENCY = int(os.getenv("BATCH_CONCURRENCY", "2"))
+BATCH_STAGGER_S = float(os.getenv("BATCH_STAGGER_S", "2"))
 
-app = FastAPI(title="mmtrial-wrap", version="1.0.0")
+# NOTE on proxies: upstream quota is keyed on egress public IP, and this
+# service's upstream traffic leaves through the attached browser profile's own
+# network stack. PROXIES therefore provides health/rotation/attribution
+# bookkeeping (each batch item records its assigned proxy label). To make pool
+# entries effective egress, run one browser profile per proxy with that proxy
+# configured in the profile itself. Until then, remaining:0 on the browser's
+# IP blocks generation regardless of pool size.
+PROXIES = ProxyPool.from_env()
+
+app = FastAPI(title="mmtrial-wrap", version="1.1.0")
 # in-memory task registry: task_id -> {access_token, client_id, created_at, status}
 TASKS: dict[str, dict] = {}
 _tasks_lock = asyncio.Lock()
@@ -227,15 +249,16 @@ async def register_task(request: Request):
     return {"ok": True, "task_id": tid}
 
 
-async def _create_generation_impl(image: UploadFile, prompt: Optional[str],
-                                  ratio: str, duration: str, client_id: Optional[str]):
-    data = await image.read()
+async def _create_generation_from_bytes(data: bytes, image_name: str, prompt: Optional[str],
+                                        ratio: str, duration: str,
+                                        client_id: Optional[str]) -> dict:
+    """Bytes-level core shared by single and batch creation. Returns body dict."""
     if not data:
         raise HTTPException(400, "empty image")
     cid = client_id or ("mmtrial_" + str(uuid.uuid4()))
     vid = "mmguest_" + str(uuid.uuid4())
     pr = prompt or PROMPT_DEFAULT
-    out = await _submit(cid, data, image.filename or "image.jpg", pr, ratio, duration, vid)
+    out = await _submit(cid, data, image_name, pr, ratio, duration, vid)
     if out["http"] != 200:
         raise HTTPException(out["http"], out["data"])
     d = out["data"]
@@ -249,13 +272,21 @@ async def _create_generation_impl(image: UploadFile, prompt: Optional[str],
                       "created_at": time.time(), "status": d.get("status", "queued")}
         _prune_tasks()
     log.info("generation created task_id=%s upstream_status=%s", tid, d.get("status"))
-    return JSONResponse({
+    return {
         "task_id": tid,
         "status": d.get("status", "queued"),
         "status_url": f"/v1/tasks/{tid}",
         "content_url": f"/v1/tasks/{tid}/content",
         "upstream": d,
-    })
+    }
+
+
+async def _create_generation_impl(image: UploadFile, prompt: Optional[str],
+                                  ratio: str, duration: str, client_id: Optional[str]):
+    data = await image.read()
+    body = await _create_generation_from_bytes(
+        data, image.filename or "image.jpg", prompt, ratio, duration, client_id)
+    return JSONResponse(body)
 
 
 def _resolve_task(task_id: str, client_id: Optional[str], access_token: Optional[str]) -> dict:
@@ -330,6 +361,218 @@ async def task_content(task_id: str, stream: bool = False,
     finally:
         await browser.close()
         await pw.stop()
+
+
+# ------------------------- Batch + proxy pool -------------------------------
+
+BATCHES: dict[str, dict] = {}
+_batches_lock = asyncio.Lock()
+
+
+async def _wait_task_terminal(tid: str, timeout_s: int) -> dict:
+    """Poll until terminal status or deadline. Never raises."""
+    deadline = time.time() + max(10, int(timeout_s))
+    last: dict = {}
+    while time.time() < deadline:
+        try:
+            st = await _get_status(tid)
+        except HTTPException as e:
+            return {"status": "error", "task_id": tid,
+                    "error": "http %s: %s" % (e.status_code, e.detail)}
+        except Exception as e:
+            return {"status": "error", "task_id": tid,
+                    "error": "%s: %s" % (type(e).__name__, str(e)[:200])}
+        last = st
+        if st.get("status") in ("succeeded", "failed", "error"):
+            return st
+        await asyncio.sleep(POLL_SECONDS)
+    out = {"status": "timeout", "task_id": tid}
+    if last:
+        out["last"] = last
+    return out
+
+
+async def _run_batch_item(batch_id: str, index: int, spec: dict, timeout_s: int,
+                          sem: asyncio.Semaphore) -> None:
+    """One batch item: submit, await terminal, record. Per-item isolation —
+    any failure lands in the item entry, never aborts siblings."""
+    async with sem:
+        px = await PROXIES.next()
+        label = px.label() if px else None
+        entry = {"index": index, "status": "running", "proxy": label,
+                 "task_id": None, "content_url": None, "error": None}
+        async with _batches_lock:
+            b = BATCHES.get(batch_id)
+            if b is None:
+                return
+            b["items"][index] = entry
+        try:
+            body = await _create_generation_from_bytes(
+                spec["data"], spec.get("image_name") or "image.jpg",
+                spec.get("prompt"), spec.get("ratio", "9:16"),
+                spec.get("duration", "6"), spec.get("client_id"))
+            tid = body["task_id"]
+            final = await _wait_task_terminal(tid, timeout_s)
+            entry["task_id"] = tid
+            if final.get("status") == "succeeded":
+                entry["status"] = "succeeded"
+                entry["content_url"] = f"/v1/tasks/{tid}/content"
+            else:
+                entry["status"] = "failed"
+                entry["error"] = "terminal=%s %s" % (
+                    final.get("status"), str(final.get("error", ""))[:200])
+                if px is not None:
+                    await PROXIES.record_failed(px)
+        except HTTPException as e:
+            entry["status"] = "failed"
+            entry["error"] = "http %s: %s" % (e.status_code, str(e.detail)[:200])
+            if px is not None:
+                await PROXIES.record_failed(px)
+        except Exception as e:
+            entry["status"] = "failed"
+            entry["error"] = "%s: %s" % (type(e).__name__, str(e)[:200])
+            if px is not None:
+                await PROXIES.record_failed(px)
+        async with _batches_lock:
+            b = BATCHES.get(batch_id)
+            if b is None:
+                return
+            b["items"][index] = entry
+            b["done"] = sum(1 for it in b["items"]
+                            if it["status"] in ("succeeded", "failed"))
+            b["succeeded"] = sum(1 for it in b["items"]
+                                 if it["status"] == "succeeded")
+            b["failed"] = sum(1 for it in b["items"]
+                              if it["status"] == "failed")
+            if b["done"] >= b["total"]:
+                b["status"] = "completed"
+                b["completed_at"] = time.time()
+
+
+async def _run_batch(batch_id: str, timeout_s: int, stagger_s: float) -> None:
+    async with _batches_lock:
+        b = BATCHES.get(batch_id)
+        if b is None:
+            return
+        specs = list(b["specs"])
+        concurrency = max(1, int(b.get("concurrency") or BATCH_CONCURRENCY))
+    sem = asyncio.Semaphore(concurrency)
+
+    async def one(i, spec):
+        if stagger_s > 0 and i > 0:
+            await asyncio.sleep(stagger_s * i)
+        await _run_batch_item(batch_id, i, spec, timeout_s, sem)
+
+    await asyncio.gather(*(one(i, s) for i, s in enumerate(specs)))
+    log.info("batch %s finished", batch_id)
+
+
+@app.post("/v1/batches", status_code=202)
+async def create_batch(request: Request):
+    """Submit N images x N prompts at once. 202 + batch_id; poll GET /v1/batches/{id}."""
+    _check_api_key(request)
+    PROXIES.maybe_refresh()
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(400, "body must be JSON")
+    if not isinstance(body, dict):
+        raise HTTPException(400, "body must be a JSON object")
+    raw_items = body.get("items")
+    if not isinstance(raw_items, list) or not raw_items:
+        raise HTTPException(400, "items must be a non-empty list")
+    if len(raw_items) > BATCH_MAX_ITEMS:
+        raise HTTPException(400, f"too many items (max {BATCH_MAX_ITEMS})")
+    specs = []
+    for i, it in enumerate(raw_items):
+        if not isinstance(it, dict):
+            raise HTTPException(400, f"items[{i}] must be an object")
+        try:
+            data = base64.b64decode(it.get("image_b64") or "", validate=True)
+        except Exception:
+            raise HTTPException(400, f"items[{i}].image_b64 is not valid base64")
+        if not data:
+            raise HTTPException(400, f"items[{i}] image is empty")
+        specs.append({
+            "data": data,
+            "image_name": str(it.get("image_name") or "image.jpg")[:120],
+            "prompt": it.get("prompt"),
+            "ratio": str(it.get("ratio") or "9:16"),
+            "duration": str(it.get("duration") or "6"),
+            "client_id": it.get("client_id"),
+        })
+    concurrency = max(1, int(body.get("concurrency") or BATCH_CONCURRENCY))
+    timeout_s = max(10, int(body.get("timeout_s") or DEFAULT_MAX_WAIT_S))
+    stagger_s = max(0.0, float(body.get("stagger_s", BATCH_STAGGER_S)))
+    batch_id = "mmbatch_" + uuid.uuid4().hex[:16]
+    async with _batches_lock:
+        BATCHES[batch_id] = {
+            "batch_id": batch_id, "created_at": time.time(),
+            "completed_at": None, "total": len(specs), "done": 0,
+            "succeeded": 0, "failed": 0, "status": "running",
+            "concurrency": concurrency, "specs": specs,
+            "items": [{"index": i, "status": "queued", "proxy": None,
+                         "task_id": None, "content_url": None, "error": None}
+                        for i in range(len(specs))],
+        }
+        now = time.time()
+        for k in [k for k, v in BATCHES.items()
+                  if now - v["created_at"] > TASK_TTL_S]:
+            BATCHES.pop(k, None)
+    asyncio.create_task(_run_batch(batch_id, timeout_s, stagger_s))
+    log.info("batch created batch_id=%s total=%d concurrency=%d",
+             batch_id, len(specs), concurrency)
+    return JSONResponse({
+        "batch_id": batch_id, "total": len(specs), "status": "running",
+        "status_url": f"/v1/batches/{batch_id}",
+        "await_url": f"/v1/batches/{batch_id}:await",
+    }, status_code=202)
+
+
+@app.get("/v1/batches/{batch_id}")
+async def batch_status(batch_id: str):
+    b = BATCHES.get(batch_id)
+    if b is None:
+        raise HTTPException(404, f"unknown batch_id {batch_id}")
+    return {k: v for k, v in b.items() if k != "specs"}
+
+
+@app.post("/v1/batches/{batch_id}:await")
+async def batch_await(batch_id: str, timeout_s: int = DEFAULT_MAX_WAIT_S):
+    b = BATCHES.get(batch_id)
+    if b is None:
+        raise HTTPException(404, f"unknown batch_id {batch_id}")
+    deadline = time.time() + max(10, int(timeout_s))
+    while time.time() < deadline:
+        async with _batches_lock:
+            snap = {k: v for k, v in BATCHES.get(batch_id, {}).items()
+                    if k != "specs"}
+        if not snap:
+            raise HTTPException(404, f"unknown batch_id {batch_id}")
+        if snap.get("status") == "completed":
+            return JSONResponse(snap)
+        await asyncio.sleep(POLL_SECONDS)
+    raise HTTPException(504, f"batch {batch_id} still running after {timeout_s}s")
+
+
+@app.get("/v1/proxies")
+async def proxies_status():
+    """Proxy pool health/rotation stats. Passwords never exposed."""
+    PROXIES.maybe_refresh()
+    return PROXIES.status()
+
+
+@app.post("/v1/proxies/check")
+async def proxies_check(request: Request, concurrency: int = 5,
+                        timeout_s: float = 15.0):
+    """Probe every configured proxy (TCP + HTTP/SOCKS5 + egress IP)."""
+    _check_api_key(request)
+    PROXIES.maybe_refresh()
+    if not len(PROXIES):
+        raise HTTPException(400, "no proxies configured (set MM_PROXIES)")
+    await PROXIES.check_all(concurrency=max(1, concurrency),
+                            timeout=max(5.0, timeout_s))
+    return PROXIES.status()
 
 
 def _prune_tasks() -> None:
