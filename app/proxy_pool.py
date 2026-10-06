@@ -244,6 +244,13 @@ class ProxyPool:
     def __len__(self):
         return len(self._items)
 
+    def find(self, label):
+        """Find a pool entry by its host:port label. Returns None."""
+        for p in self._items:
+            if p.label() == label:
+                return p
+        return None
+
     async def next(self):
         """Round-robin; prefers alive entries, else least-failed. Counts use."""
         async with self._lock:

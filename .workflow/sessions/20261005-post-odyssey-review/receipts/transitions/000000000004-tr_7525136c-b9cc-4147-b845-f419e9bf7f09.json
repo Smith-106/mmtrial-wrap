@@ -1,0 +1,117 @@
+{
+  "schema_version": "transition-receipt/2.0",
+  "transition_id": "tr_7525136c-b9cc-4147-b845-f419e9bf7f09",
+  "request_id": "cli-588e6dfc6c9cb9ba",
+  "session_id": "20261005-post-odyssey-review",
+  "activity_revision": 4,
+  "target_type": "orchestration",
+  "target_id": "20261005-post-odyssey-review",
+  "revision_before": 3,
+  "revision_after": 4,
+  "actor_id": "actor-niko",
+  "participant_id": "actor-niko",
+  "reason": "cli:run complete",
+  "evidence_refs": [],
+  "recorded_at": "2026-10-05T09:13:50.721Z",
+  "result": {
+    "operation": "run-complete-and-seal",
+    "run_id": "run-5f1434ee380c",
+    "run_revision": 2,
+    "status": "sealed",
+    "orchestration_revision": 4,
+    "artifact_publication": {
+      "authority": "transition-receipt/2.0",
+      "artifact_registry_revision": 1,
+      "artifact_ids": [
+        "ART-b6fefd4f27b1ccc0c605",
+        "ART-75e405a52f24e0b5c64c",
+        "ART-60d7357b375c6a32c56b"
+      ],
+      "primary_artifact_id": "ART-75e405a52f24e0b5c64c",
+      "artifacts": {
+        "ART-b6fefd4f27b1ccc0c605": {
+          "kind": "evidence",
+          "role": "evidence",
+          "producer_run_id": "run-5f1434ee380c",
+          "relative_path": "runs/run-5f1434ee380c/outputs/evidence.ndjson",
+          "media_type": "application/x-ndjson",
+          "schema_version": "evidence/1.0",
+          "content_hash": "995e1a4244de8beba0dd5e9ca403f3d0b918fb433e768ce35a5dd5b730a7b981",
+          "size": 372,
+          "status": "sealed",
+          "derived_from": [],
+          "replaces": null
+        },
+        "ART-75e405a52f24e0b5c64c": {
+          "kind": "session",
+          "role": "primary",
+          "producer_run_id": "run-5f1434ee380c",
+          "relative_path": "runs/run-5f1434ee380c/outputs/session.json",
+          "media_type": "application/json",
+          "schema_version": "session/1.0",
+          "content_hash": "1f5b090a37a6a35afdfd0414df5e2c1c24cf70b37d3c99b58ae64d34106aae77",
+          "size": 2451,
+          "status": "sealed",
+          "derived_from": [],
+          "replaces": null
+        },
+        "ART-60d7357b375c6a32c56b": {
+          "kind": "review-report",
+          "role": "primary",
+          "producer_run_id": "run-5f1434ee380c",
+          "relative_path": "runs/run-5f1434ee380c/outputs/understanding.md",
+          "media_type": "text/markdown",
+          "schema_version": "review-report/1.0",
+          "content_hash": "c215080f1d4fbcd66fda46946b4ef2d60a776c7da51e5b2a5481dabd7ce852b7",
+          "size": 808,
+          "status": "sealed",
+          "derived_from": [],
+          "replaces": null
+        }
+      },
+      "aliases": {
+        "review-evidence": "ART-b6fefd4f27b1ccc0c605",
+        "review-session": "ART-75e405a52f24e0b5c64c",
+        "review-understanding": "ART-60d7357b375c6a32c56b"
+      }
+    },
+    "output_warnings": [
+      "outputs/evidence.ndjson: missing _meta; inferred kind=evidence",
+      "outputs/session.json: missing _meta; inferred kind=session",
+      "outputs/understanding.md: missing frontmatter kind; inferred kind=review-report",
+      "Expected outputs/explore.json was not produced"
+    ],
+    "next_step_id": null,
+    "next": {
+      "suggest_only": true,
+      "command": "maestro session complete --session 20261005-post-odyssey-review --actor <actor-id> --expected-orchestration-revision 4 --json",
+      "reason": "Run sealed; no pending chain step remains, so complete the Session"
+    },
+    "continuation": {
+      "operation": "session-complete",
+      "locator": {
+        "session_id": "20261005-post-odyssey-review",
+        "run_id": null
+      },
+      "revision_requirements": {
+        "expected_orchestration_revision": 4,
+        "expected_run_revision": null
+      },
+      "required_caller_fields": [
+        "actor"
+      ]
+    },
+    "knowledge_reconciliation": {
+      "schema_version": "knowledge-reconciliation-receipt/1.0",
+      "candidate_snapshot_hash": "ecf3b5a543dca67dbc4c6a12ce4dbd5ec44be79e88205c5cdf42c2f2044b717a",
+      "corpus_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "retrieval_mode": "lexical-kg",
+      "candidates": 1,
+      "duplicates": 0,
+      "conflicts": 0,
+      "review_required": 0,
+      "suppressed": 0,
+      "review_command": "maestro knowledge review 20261005-post-odyssey-review"
+    }
+  }
+}

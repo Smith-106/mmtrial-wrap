@@ -43,13 +43,13 @@ BATCH_MAX_ITEMS = int(os.getenv("BATCH_MAX_ITEMS", "20"))
 BATCH_CONCURRENCY = int(os.getenv("BATCH_CONCURRENCY", "2"))
 BATCH_STAGGER_S = float(os.getenv("BATCH_STAGGER_S", "2"))
 
-# NOTE on proxies: upstream quota is keyed on egress public IP, and this
-# service's upstream traffic leaves through the attached browser profile's own
-# network stack. PROXIES therefore provides health/rotation/attribution
-# bookkeeping (each batch item records its assigned proxy label). To make pool
-# entries effective egress, run one browser profile per proxy with that proxy
-# configured in the profile itself. Until then, remaining:0 on the browser's
-# IP blocks generation regardless of pool size.
+# NOTE on proxies: upstream quota is keyed on egress public IP. Batch items
+# get effective per-proxy egress via fresh Playwright browser contexts created
+# with proxy={server,username,password} on the CDP-attached browser
+# (verified: new_context(proxy=...) works over connect_over_cdp, egress IP ==
+# proxy IP). Single-generation endpoints keep the profile-tab path (cookies
+# intact); batch items trade cookies for fresh IPs — CF may re-challenge a
+# fresh context, which surfaces per-item as 503/403 and never aborts siblings.
 PROXIES = ProxyPool.from_env()
 
 app = FastAPI(title="mmtrial-wrap", version="1.1.0")
@@ -145,6 +145,131 @@ async def _submit(client_id: str, image: bytes, image_name: str,
                   prompt: str, ratio: str, duration: str, visitor_id: str) -> dict:
     image_b64 = base64.b64encode(image).decode()
     r = await _post_via_cdp(client_id, image_b64, image_name, prompt, ratio, duration, visitor_id)
+    if not r.get("ok"):
+        raise HTTPException(r.get("status", 502), f"upstream error: {r.get('data', {})}")
+    return {"http": 200, "data": r["data"]}
+
+
+async def _open_proxy_page(px):
+    """Fresh siftq.com page in a proxy-egress browser context.
+
+    Returns (pw, browser, context, page). Caller must close all three.
+    Verified live: egress IP of the page == proxy IP. The context starts
+    cookie-free, so Cloudflare may re-challenge — callers treat non-task
+    payloads as per-item failures, never fatal."""
+    try:
+        from playwright.async_api import async_playwright
+    except ImportError:
+        raise HTTPException(503, "playwright not installed")
+    cdp_url = f"http://{CDP_HOST}:{CDP_PORT}"
+    pw = await async_playwright().start()
+    try:
+        browser = await pw.chromium.connect_over_cdp(cdp_url)
+    except Exception:
+        await pw.stop()
+        raise
+    try:
+        ctx = await browser.new_context(
+            proxy={"server": "http://%s:%d" % (px.host, px.port),
+                   "username": px.user, "password": px.password})
+    except Exception:
+        await browser.close()
+        await pw.stop()
+        raise
+    page = None
+    try:
+        page = await ctx.new_page()
+        # wait_until=commit: only needs the origin committed, not the full
+        # DOM — the relative fetch works regardless, and CF interstitial
+        # pages must not stall this on domcontentloaded.
+        await page.goto("https://siftq.com/minimax-h3/free-trial",
+                        timeout=30000, wait_until="commit")
+    except Exception as e:
+        await ctx.close()
+        await browser.close()
+        await pw.stop()
+        raise HTTPException(503, "proxy page goto failed: %s: %s"
+                            % (type(e).__name__, str(e)[:150]))
+    return pw, browser, ctx, page
+
+
+async def _close_proxy_page(pw, browser, ctx) -> None:
+    for closer in (ctx.close, browser.close, pw.stop):
+        try:
+            await closer()
+        except Exception:
+            pass
+
+
+async def _post_on_page(page, client_id: str, image_b64: str, image_name: str,
+                       prompt: str, ratio: str, duration: str,
+                       visitor_id: str) -> dict:
+    """POST generation on an already-open siftq.com page (any egress)."""
+    return await page.evaluate("""async ([fields, b64]) => {
+            const fd = new FormData();
+            for (const [k, v] of Object.entries(fields)) fd.append(k, v);
+            const blob = await (await fetch('data:image/jpeg;base64,' + b64)).blob();
+            fd.append('image', blob, fields.image_name || 'image.jpg');
+            const r = await fetch('/api/minimax-trial/video-generation', {
+                method: 'POST', body: fd
+            });
+            const text = await r.text();
+            let data; try { data = JSON.parse(text); } catch { data = { raw: text.slice(0, 500) }; }
+            return { status: r.status, ok: r.ok, data, headers: Object.fromEntries(r.headers.entries()) };
+        }""", [{
+            "visitorId": visitor_id,
+            "channelCode": os.getenv("MM_CHANNEL", "direct"),
+            "sourceHost": os.getenv("MM_SOURCE_HOST", "siftq.com"),
+            "ratio": ratio,
+            "duration": str(duration),
+            "client_id": client_id,
+            "prompt": prompt,
+            "image_name": image_name,
+        }, image_b64])
+
+
+async def _post_via_proxy(px, client_id: str, image_b64: str, image_name: str,
+                          prompt: str, ratio: str, duration: str,
+                          visitor_id: str) -> dict:
+    """POST generation from a proxy-egress page (open-use-close)."""
+    pw, browser, ctx, page = await _open_proxy_page(px)
+    try:
+        return await _post_on_page(page, client_id, image_b64, image_name,
+                                   prompt, ratio, duration, visitor_id)
+    finally:
+        await _close_proxy_page(pw, browser, ctx)
+
+
+async def _get_status_on_page(page, task_id: str, access_token: str) -> dict:
+    """GET task status on an already-open siftq.com page (any egress)."""
+    return await page.evaluate("""async (url) => {
+            const r = await fetch(url);
+            const text = await r.text();
+            let data; try { data = JSON.parse(text); } catch { data = { raw: text.slice(0, 500) }; }
+            return { status: r.status, data };
+        }""", f"/api/minimax-trial/video-generation/{task_id}?access_token={access_token}")
+
+
+async def _get_status_via_proxy(px, task_id: str, access_token: str) -> dict:
+    """GET task status from a proxy-egress page (open-use-close)."""
+    pw, browser, ctx, page = await _open_proxy_page(px)
+    try:
+        return await _get_status_on_page(page, task_id, access_token)
+    finally:
+        await _close_proxy_page(pw, browser, ctx)
+
+
+async def _submit_via(px, client_id: str, image: bytes, image_name: str,
+                      prompt: str, ratio: str, duration: str,
+                      visitor_id: str) -> dict:
+    """Route submit: proxy-egress page when px given, else profile-tab path."""
+    image_b64 = base64.b64encode(image).decode()
+    if px is None:
+        r = await _post_via_cdp(client_id, image_b64, image_name, prompt,
+                                ratio, duration, visitor_id)
+    else:
+        r = await _post_via_proxy(px, client_id, image_b64, image_name,
+                                  prompt, ratio, duration, visitor_id)
     if not r.get("ok"):
         raise HTTPException(r.get("status", 502), f"upstream error: {r.get('data', {})}")
     return {"http": 200, "data": r["data"]}\
@@ -251,14 +376,26 @@ async def register_task(request: Request):
 
 async def _create_generation_from_bytes(data: bytes, image_name: str, prompt: Optional[str],
                                         ratio: str, duration: str,
-                                        client_id: Optional[str]) -> dict:
-    """Bytes-level core shared by single and batch creation. Returns body dict."""
+                                        client_id: Optional[str],
+                                        proxy=None, page=None) -> dict:
+    """Bytes-level core shared by single and batch creation. Returns body dict.
+    page (pre-opened siftq.com page) wins; else proxy routes via proxy egress;
+    proxy=None keeps the profile-tab path."""
     if not data:
         raise HTTPException(400, "empty image")
     cid = client_id or ("mmtrial_" + str(uuid.uuid4()))
     vid = "mmguest_" + str(uuid.uuid4())
     pr = prompt or PROMPT_DEFAULT
-    out = await _submit(cid, data, image_name, pr, ratio, duration, vid)
+    if page is not None:
+        image_b64 = base64.b64encode(data).decode()
+        r = await _post_on_page(page, cid, image_b64, image_name, pr,
+                                ratio, duration, vid)
+        if not r.get("ok"):
+            raise HTTPException(r.get("status", 502),
+                                f"upstream error: {r.get('data', {})}")
+        out = {"http": 200, "data": r["data"]}
+    else:
+        out = await _submit_via(proxy, cid, data, image_name, pr, ratio, duration, vid)
     if out["http"] != 200:
         raise HTTPException(out["http"], out["data"])
     d = out["data"]
@@ -269,7 +406,8 @@ async def _create_generation_from_bytes(data: bytes, image_name: str, prompt: Op
     tid = str(d["task_id"])
     async with _tasks_lock:
         TASKS[tid] = {"access_token": d["access_token"], "client_id": cid,
-                      "created_at": time.time(), "status": d.get("status", "queued")}
+                      "created_at": time.time(), "status": d.get("status", "queued"),
+                      "proxy": proxy.label() if proxy is not None else None}
         _prune_tasks()
     log.info("generation created task_id=%s upstream_status=%s", tid, d.get("status"))
     return {
@@ -301,15 +439,34 @@ def _resolve_task(task_id: str, client_id: Optional[str], access_token: Optional
     return t
 
 
+def _proxy_for_task(t: dict):
+    """Resolve the pool Proxy for a task entry by its recorded label."""
+    label = t.get("proxy")
+    if not label:
+        return None
+    return PROXIES.find(label)
+
+
 async def _get_status(tid: str, client_id: Optional[str] = None,
-                      access_token: Optional[str] = None) -> dict:
+                      access_token: Optional[str] = None, proxy=None,
+                      page=None) -> dict:
     t = _resolve_task(tid, client_id, access_token)
-    r = await _get_status_via_cdp(tid, t["access_token"])
+    if page is not None:
+        r = await _get_status_on_page(page, tid, t["access_token"])
+        d = r["data"]
+        async with _tasks_lock:
+            TASKS.setdefault(tid, {"created_at": time.time()})["status"] = d.get("status")
+        return d
+    px = proxy if proxy is not None else _proxy_for_task(t)
+    if px is None:
+        r = await _get_status_via_cdp(tid, t["access_token"])
+    else:
+        r = await _get_status_via_proxy(px, tid, t["access_token"])
     if r["status"] != 200:
         raise HTTPException(r["status"], f"upstream status error: {r.get('data', {})}")
     d = r["data"]
     async with _tasks_lock:
-        TASKS.setdefault(tid, {})["status"] = d.get("status")
+        TASKS.setdefault(tid, {"created_at": time.time()})["status"] = d.get("status")
     return d
 
 
@@ -330,9 +487,15 @@ async def task_content(task_id: str, stream: bool = False,
            f"?client_id={t['client_id']}&access_token={t['access_token']}")
     if not stream:
         return RedirectResponse(url)
-    # Stream via CDP: fetch full body in the page (real fingerprint/cookies/IP),
-    # return as base64 -> decode -> stream to client. No curl_cffi needed.
-    pw, browser, page = await _get_cdp_page()
+    # Stream via the task's own egress (proxy page when recorded, else
+    # profile tab): fetch full body in-page, base64 -> decode -> stream.
+    px = _proxy_for_task(t)
+    if px is None:
+        pw, browser, page = await _get_cdp_page()
+        closer = None
+    else:
+        pw, browser, ctx, page = await _open_proxy_page(px)
+        closer = (pw, browser, ctx)
     try:
         result = await page.evaluate("""async (url) => {
             const r = await fetch(url);
@@ -359,8 +522,11 @@ async def task_content(task_id: str, stream: bool = False,
         return StreamingResponse(
             iter([body]), media_type="video/mp4", headers=headers)
     finally:
-        await browser.close()
-        await pw.stop()
+        if closer is None:
+            await browser.close()
+            await pw.stop()
+        else:
+            await _close_proxy_page(*closer)
 
 
 # ------------------------- Batch + proxy pool -------------------------------
@@ -369,13 +535,14 @@ BATCHES: dict[str, dict] = {}
 _batches_lock = asyncio.Lock()
 
 
-async def _wait_task_terminal(tid: str, timeout_s: int) -> dict:
+async def _wait_task_terminal(tid: str, timeout_s: int, proxy=None,
+                              page=None) -> dict:
     """Poll until terminal status or deadline. Never raises."""
     deadline = time.time() + max(10, int(timeout_s))
-    last: dict = {}
+    last: dict[str, object] = {}
     while time.time() < deadline:
         try:
-            st = await _get_status(tid)
+            st = await _get_status(tid, proxy=proxy, page=page)
         except HTTPException as e:
             return {"status": "error", "task_id": tid,
                     "error": "http %s: %s" % (e.status_code, e.detail)}
@@ -386,7 +553,7 @@ async def _wait_task_terminal(tid: str, timeout_s: int) -> dict:
         if st.get("status") in ("succeeded", "failed", "error"):
             return st
         await asyncio.sleep(POLL_SECONDS)
-    out = {"status": "timeout", "task_id": tid}
+    out: dict[str, object] = {"status": "timeout", "task_id": tid}
     if last:
         out["last"] = last
     return out
@@ -406,13 +573,37 @@ async def _run_batch_item(batch_id: str, index: int, spec: dict, timeout_s: int,
             if b is None:
                 return
             b["items"][index] = entry
+        # Persistent proxy page per item: one goto, reused for submit + all
+        # polls. Without this, every poll opens a fresh page whose goto can
+        # stall and kill an otherwise healthy item.
+        opener = None
+        if px is not None:
+            try:
+                pw0, browser0, ctx0, page0 = await _open_proxy_page(px)
+                opener = (pw0, browser0, ctx0, page0)
+            except Exception as e:
+                # Single record point is the outer handler; just stash the
+                # message here and raise so the item fails cleanly.
+                entry["status"] = "failed"
+                if isinstance(e, HTTPException):
+                    entry["error"] = "proxy page open: http %s: %s" % (
+                        e.status_code, str(e.detail)[:150])
+                else:
+                    entry["error"] = "proxy page open: %s: %s" % (
+                        type(e).__name__, str(e)[:150])
+                opener = None
         try:
+            if opener is None and px is not None and entry["error"]:
+                raise HTTPException(503, entry["error"])
+            page0 = opener[3] if opener is not None else None
             body = await _create_generation_from_bytes(
                 spec["data"], spec.get("image_name") or "image.jpg",
                 spec.get("prompt"), spec.get("ratio", "9:16"),
-                spec.get("duration", "6"), spec.get("client_id"))
+                spec.get("duration", "6"), spec.get("client_id"),
+                proxy=px, page=page0)
             tid = body["task_id"]
-            final = await _wait_task_terminal(tid, timeout_s)
+            final = await _wait_task_terminal(tid, timeout_s, proxy=px,
+                                              page=page0)
             entry["task_id"] = tid
             if final.get("status") == "succeeded":
                 entry["status"] = "succeeded"
@@ -433,6 +624,9 @@ async def _run_batch_item(batch_id: str, index: int, spec: dict, timeout_s: int,
             entry["error"] = "%s: %s" % (type(e).__name__, str(e)[:200])
             if px is not None:
                 await PROXIES.record_failed(px)
+        finally:
+            if opener is not None:
+                await _close_proxy_page(opener[0], opener[1], opener[2])
         async with _batches_lock:
             b = BATCHES.get(batch_id)
             if b is None:

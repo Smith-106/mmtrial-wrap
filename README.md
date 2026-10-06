@@ -82,7 +82,13 @@ curl -X POST localhost:8080/v1/batches -H 'Content-Type: application/json' -d @b
 curl localhost:8080/v1/batches/mmbatch_...
 ```
 
-Note: upstream quota is keyed on egress IP and this service's traffic leaves
-through the browser profile's own network stack. Pool entries provide
-health/rotation/attribution; to make them effective egress, configure each
-proxy inside its own browser profile.
+Note: upstream quota is keyed on egress IP. Batch items get effective
+per-proxy egress via fresh Playwright browser contexts created with
+`proxy={server,username,password}` on the CDP-attached browser
+(verified: `new_context(proxy=...)` works over `connect_over_cdp`,
+egress IP == proxy IP). Single-generation endpoints keep the profile-tab
+path (cookies intact); batch items trade cookies for fresh IPs — a fresh
+context may hit a CF re-challenge, which surfaces per-item as 503/403
+and never aborts siblings. Each batch item reuses one proxy page for
+submit + all polls; the task record pins its proxy label so status and
+content-stream reuse the same egress.

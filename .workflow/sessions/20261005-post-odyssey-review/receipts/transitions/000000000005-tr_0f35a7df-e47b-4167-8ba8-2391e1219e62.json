@@ -1,0 +1,20 @@
+{
+  "schema_version": "transition-receipt/2.0",
+  "transition_id": "tr_0f35a7df-e47b-4167-8ba8-2391e1219e62",
+  "request_id": "cli-c52eccf2c35f5fcb",
+  "session_id": "20261005-post-odyssey-review",
+  "activity_revision": 5,
+  "target_type": "orchestration",
+  "target_id": "20261005-post-odyssey-review",
+  "revision_before": 4,
+  "revision_after": 5,
+  "actor_id": "actor-niko",
+  "participant_id": "actor-niko",
+  "reason": "post-odyssey substantive review complete",
+  "evidence_refs": [],
+  "recorded_at": "2026-10-05T09:13:58.879Z",
+  "result": {
+    "status": "completed",
+    "orchestration_revision": 5
+  }
+}

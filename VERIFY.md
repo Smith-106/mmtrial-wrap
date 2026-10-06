@@ -49,5 +49,21 @@ with a valid `cf_clearance`, CDP port discoverable via `DevToolsActivePort`
   - `POST /v1/batches/{id}:await` → terminal summary; bad base64 → `400`
   - `POST /v1/proxies/check` → `alive 10/10`, all `proto:http`,
     latencies ~1–1.9s, no password keys in output
-  - Blocking point: browser egress IP quota `limit:2 used:2 remaining:0`;
-    pool entries need per-profile browser egress to take effect.
+  - Blocking point: browser egress IP quota `limit:2 used:2 remaining:0`.
+
+# Evidence (2026-10-06, proxy-egress batch change, uncommitted)
+- `app/main.py`: batch items get effective per-proxy egress via fresh
+  Playwright contexts (`new_context(proxy=...)` over `connect_over_cdp`);
+  one proxy page per item reused for submit + all polls; task record pins
+  the proxy label so `/v1/tasks/{id}` and `content?stream=1` reuse the same
+  egress; fresh-context CF challenges surface per-item as 503/403.
+- `app/proxy_pool.py`: new `ProxyPool.find(label)`; `_proxy_for_task`
+  no longer touches the private `_items` list.
+- Review fixes: `new_page()` failure now closes ctx/browser/pw (no leaked
+  CDP session); `setdefault(tid, {"created_at": ...})` keeps `_prune_tasks`
+  safe; proxy-open failure records once via the outer handler.
+- Static checks (no browser needed): `py_compile` OK on both files;
+  pool unit check with dummy `MM_PROXIES` → size 2, `status()` contains
+  no password material, `find()` hit/miss correct.
+- Live end-to-end (batch submit on a fresh-quota proxy) NOT run — browser
+  + quota dependent; run `POST /v1/batches` once quota/proxies allow.
